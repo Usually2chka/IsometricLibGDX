@@ -1,6 +1,5 @@
 package project.game.Utils;
 
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
@@ -11,6 +10,17 @@ public class InputSystem implements GestureDetector.GestureListener {
     private float initialZoom;
     private final float minZoom = 0.5f;
     private final float maxZoom = 2f;
+    private float panSensitivity = 0.4f;
+
+    // Для инерции
+    private final Vector2 velocity = new Vector2();
+    private final float deceleration = 0.9f; // Коэффициент замедления (0.9 = 10% потерь за кадр)
+    private boolean isFlinging = false;
+
+    // Для перемещения при удержании
+    private final Vector2 panDelta = new Vector2();
+    private boolean isPanning = false;
+
 
     public InputSystem(OrthographicCamera camera) {
         this.camera = camera;
@@ -34,28 +44,37 @@ public class InputSystem implements GestureDetector.GestureListener {
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
-        // Движение камеры при свайпе
-        float speed = 0.01f; // Настройте под чувствительность
-        camera.position.add(-velocityX * speed, velocityY * speed, 0);
+        // Инерция после быстрого свайпа
+        velocity.set(velocityX * 0.01f, velocityY * 0.01f);
+        isFlinging = true;
         return true;
     }
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-        return false;
+        // Движение камеры при удержании пальца
+        panDelta.set(-deltaX * panSensitivity, deltaY * panSensitivity);
+        isPanning = true;
+        isFlinging = false; // Отключаем инерцию, если палец на экране
+        return true;
     }
 
     @Override
     public boolean panStop(float x, float y, int pointer, int button) {
-        return false;
+        // При отпускании пальца сохраняем последнее перемещение для инерции
+        if (isPanning) {
+            velocity.set(panDelta.x * 0.5f, panDelta.y * 0.5f);
+            isFlinging = true;
+            isPanning = false;
+        }
+        return true;
     }
 
     @Override
     public boolean zoom(float initialDistance, float distance) {
-        // Обработка пинча (зум)
+        // Зум
         float zoomFactor = initialDistance / distance;
-        camera.zoom = initialZoom * zoomFactor;
-        camera.zoom = MathUtils.clamp(camera.zoom, minZoom, maxZoom);
+        camera.zoom = MathUtils.clamp(initialZoom * zoomFactor, minZoom, maxZoom);
         camera.update();
         return true;
     }
@@ -69,5 +88,21 @@ public class InputSystem implements GestureDetector.GestureListener {
     public void pinchStop() {
         // Сохраняем текущий зум для следующего вызова zoom()
         initialZoom = camera.zoom;
+    }
+    public void updateInertia() {
+        // Движение при удержании пальца
+        if (isPanning) {
+            camera.position.add(panDelta.x, panDelta.y, 0);
+            panDelta.set(0, 0); // Сбрасываем дельту
+        }
+
+        // Инерция после отпускания
+        if (isFlinging && !velocity.isZero(0.1f)) {
+            camera.position.add(-velocity.x, velocity.y, 0);
+            velocity.scl(deceleration);
+            if (velocity.len() < 0.1f) velocity.setZero();
+        }
+
+        camera.update();
     }
 }
