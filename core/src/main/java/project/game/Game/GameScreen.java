@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import project.game.Main;
 import project.game.Utils.InputSystem;
+import project.game.Utils.TextureManager;
 
 public class GameScreen implements Screen {
     private SpriteBatch batch;
@@ -20,6 +21,7 @@ public class GameScreen implements Screen {
     //private InputSystem inputSystem;
     private InputMultiplexer input;
     private GestureDetector detector;
+    private TextureManager manager;
     public GameScreen (SpriteBatch batch) {
         this.batch = batch;
 
@@ -33,6 +35,7 @@ public class GameScreen implements Screen {
     public void show() {
         camera.position.set(Main.VIEW_WIDTH / 2, Main.VIEW_HEIGHT / 2, 5);
         Gdx.input.setInputProcessor(detector);
+        manager.init();
     }
 
     @Override

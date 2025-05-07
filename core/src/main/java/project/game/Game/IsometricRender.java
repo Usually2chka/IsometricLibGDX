@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import java.util.HashMap;
 import java.util.Map;
 
+import project.game.Utils.TextureManager;
+
 public class IsometricRender {
     private static final int TILE_WIDTH = 64;
     private static final int TILE_HEIGHT = 64;
@@ -16,17 +18,13 @@ public class IsometricRender {
     private Map<String, TextureRegion> textureRegions = new HashMap<String, TextureRegion>();
     private Texture texture;
     private TextureRegion regions[][];
-
-    //private TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("textures/Ground.atlas"));
-    //private TextureAtlas.AtlasRegion grass = atlas.findRegion("GrassWithSpots");
+    private TextureRegion region;
     public IsometricRender()
     {
+        TextureManager.GetRegion("GrassWithSpots");
         texture = new Texture(Gdx.files.internal("Grass.png"));
-        regions = TextureRegion.split(texture, texture.getWidth() / 9, texture.getHeight() / 9);
-
-//        for (int i = 0; i < 3; i++)
-//            for (int j = 0; j < 3; j++)
-//                textureRegions.put("texture" + j + " " + i, regions[i][j]);
+        region = new TextureRegion(texture);
+        //regions = TextureRegion.split(texture, texture.getWidth() / 9, texture.getHeight() / 9);
 
     }
     public void DrawGrow(SpriteBatch batch)
@@ -37,7 +35,7 @@ public class IsometricRender {
                 float x = (row - col) * (TILE_WIDTH / 2f);
                 float y = (row + col) * (TILE_HEIGHT / 4f);
 
-                batch.draw(texture, x, y, TILE_WIDTH, TILE_HEIGHT);
+                batch.draw(region, x, y, TILE_WIDTH, TILE_HEIGHT); //texture
             }
     }
 }
