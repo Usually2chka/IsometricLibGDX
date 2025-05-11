@@ -1,37 +1,58 @@
 package project.game.Utils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Disposable;
 
-public class TextureManager {
-    private static AssetManager manager = new AssetManager();
-    private static TextureAtlas texture = new TextureAtlas();
+public class TextureManager implements Disposable {
+    private static TextureManager instance;
+    private AssetManager manager;
+    private TextureAtlas atlas;
 
-    private TextureManager() { }
+    private TextureManager()
+    {
+        manager = new AssetManager();
+    }
 
-    public static boolean Update()
+    public static TextureManager GetInstance()
+    {
+        if(instance == null)
+            instance = new TextureManager();
+        return instance;
+    }
+
+    public void Init()
+    {
+        manager.load(Constants.PATH_TO_ATLAS, TextureAtlas.class);
+    }
+
+    public TextureRegion GetTextureRegion(String regionName) {
+        if (atlas == null) {
+            throw new RuntimeException("Atlas not loaded yet!");
+        }
+        TextureRegion region = atlas.findRegion(regionName);
+
+        if (region == null) {
+            throw new RuntimeException("Region '" + regionName +
+                "' not found in atlas!");
+        }
+        return region;
+    }
+
+    public boolean Update()
     {
         return manager.update();
     }
 
-    public static void init()
-    {
-        manager.load(Constants.PATH_TO_ATLAS, TextureAtlas.class);
-        manager.load(Constants.PATH_TO_TEXTURES, TextureAtlas.class);
-
-        if(manager.update())
-        {
-            texture = manager.get(Constants.PATH_TO_ATLAS, TextureAtlas.class);
-        }
+    public void FinishLoading() {
+        manager.finishLoading();
+        atlas = manager.get(Constants.PATH_TO_ATLAS, TextureAtlas.class);
     }
 
-    public static TextureRegion GetRegion(String name)
-    {
-        TextureRegion region = texture.findRegion("GrassWithSpots"); // null object
-        if (region == null)
-            Gdx.app.log("Null", "object");
-        return region;
+    @Override
+    public void dispose() {
+        atlas.dispose();
+        manager.dispose();
     }
 }

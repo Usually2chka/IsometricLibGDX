@@ -1,5 +1,6 @@
 package project.game.Game;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -18,7 +19,7 @@ public class GameScreen implements Screen {
     private InputSystem input;
     private GestureDetector detector;
     private TextureManager manager;
-    public GameScreen (SpriteBatch batch) {
+    public GameScreen (SpriteBatch batch, Game game) {
         this.batch = batch;
 
         camera = new OrthographicCamera(Main.VIEW_WIDTH, Main.VIEW_HEIGHT);
@@ -30,7 +31,6 @@ public class GameScreen implements Screen {
     public void show() {
         camera.position.set(Main.VIEW_WIDTH / 2, Main.VIEW_HEIGHT / 2, 5);
         Gdx.input.setInputProcessor(detector);
-        manager.init();
     }
 
     @Override
@@ -38,6 +38,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
+
         input.updateInertia();
         batch.setProjectionMatrix(camera.combined);
 
