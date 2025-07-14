@@ -10,7 +10,7 @@ import Network.AuthRequest;
 import Network.AuthResponse;
 import Network.Network;
 
-public class ClientPlayer {
+public class GameClient {
     private Client client;
     private int playerId;
 

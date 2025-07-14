@@ -3,25 +3,21 @@ package project.game.UserInterface;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
 
-import Network.Entity.HostPlayer;
-import project.game.Main;
+import Network.Entity.GameServer;
 
 public class HostScreen implements Screen {
     private Stage stage = new Stage(new ScreenViewport());;
-    private HostPlayer host;
+    private GameServer host;
     private Label tokenLabel;
     private Table table = new Table();
     private Group group = new Group();
@@ -31,11 +27,11 @@ public class HostScreen implements Screen {
         stage.addActor(table);
 
         try {
-            host = new HostPlayer();
-            String token = host.getGameToken();
+            host = new GameServer();
+            //String token = host.getGameToken();
 
             // Показываем токен игроку (например, для копирования)
-            tokenLabel = new Label("Token for connect " + token, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+            //tokenLabel = new Label("Token for connect " + token, new Label.LabelStyle(new BitmapFont(), Color.WHITE));
             //group.addActor(tokenLabel);
             //group.setScale(200f, 200f);
             table.add(tokenLabel);

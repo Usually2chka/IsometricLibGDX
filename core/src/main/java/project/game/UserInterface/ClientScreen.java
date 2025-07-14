@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
 
-import Network.Entity.ClientPlayer;
+import Network.Entity.GameClient;
 
 public class ClientScreen implements Screen {
     private Stage stage = new Stage(new ScreenViewport());
@@ -40,7 +40,7 @@ public class ClientScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
-                    new ClientPlayer().connect(
+                    new GameClient().connect(
                         ipField.getText(),
                         tokenField.getText(),
                         "Player1" // Можно добавить поле для имени
