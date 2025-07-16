@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
 
 import project.game.Main;
 import project.game.Utils.InputSystem;
@@ -18,19 +21,22 @@ public class GameScreen implements Screen {
     private IsometricRender render;
     private InputSystem input;
     private GestureDetector detector;
-    private TextureManager manager;
+    private World world;
+
     public GameScreen (SpriteBatch batch, Game game) {
         this.batch = batch;
 
+        world = new World(new Vector2(0, 0), true);
         camera = new OrthographicCamera(Main.VIEW_WIDTH, Main.VIEW_HEIGHT);
         input = new InputSystem(camera);
-        render = new IsometricRender();
+        render = new IsometricRender(world);
         detector = new GestureDetector(input);
     }
     @Override
     public void show() {
         camera.position.set(Main.VIEW_WIDTH / 2, Main.VIEW_HEIGHT / 2, 5);
         Gdx.input.setInputProcessor(detector);
+
     }
 
     @Override
@@ -44,6 +50,8 @@ public class GameScreen implements Screen {
 
         batch.begin();
 
+
+        world.step(1/60f, 6, 2);
         render.DrawGrow(batch);
 
         batch.end();

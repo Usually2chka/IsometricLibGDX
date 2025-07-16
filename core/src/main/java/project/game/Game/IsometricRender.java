@@ -1,29 +1,33 @@
 package project.game.Game;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import static project.game.Utils.Constants.TILE_HEIGHT;
+import static project.game.Utils.Constants.TILE_WIDTH;
 
-import project.game.Utils.TextureManager;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.box2d.World;
+
+import project.game.Game.Entitys.Block;
 
 public class IsometricRender {
-    private static final int TILE_WIDTH = 64;
-    private static final int TILE_HEIGHT = 64;
-    private TextureRegion region;
-    public IsometricRender()
+    private Block[][] blocks;
+    private World world;
+    public IsometricRender(World world)
     {
-        region = TextureManager.
-            GetInstance().
-            GetTextureRegion("WinterGrassWithForest");
+        this.world = world;
     }
     public void DrawGrow(SpriteBatch batch)
     {
+        Block[][] ground = new Block[16][16];
+
         for (int row = 15; row >= 0; row--)
             for (int col = 15; col >= 0; col--)
             {
                 float x = (row - col) * (TILE_WIDTH / 2f);
                 float y = (row + col) * (TILE_HEIGHT / 4f);
 
-                batch.draw(region, x, y, TILE_WIDTH, TILE_HEIGHT);
+                ground[row][col] = new Block(world, "WinterGrassWithForest", x, y);
+                (ground[row][col]).RenderBlock(batch);
             }
+        blocks = ground;
     }
 }
