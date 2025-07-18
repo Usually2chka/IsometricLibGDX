@@ -4,6 +4,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+
+import project.game.Game.Entitys.Tile;
+import project.game.Game.TileMap;
 
 public class InputSystem implements GestureDetector.GestureListener {
     private final OrthographicCamera camera;
@@ -25,11 +29,37 @@ public class InputSystem implements GestureDetector.GestureListener {
     public InputSystem(OrthographicCamera camera) {
         this.camera = camera;
         this.initialZoom = camera.zoom;
+
     }
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
-        return false;
+        // Преобразуем координаты касания в координаты мира
+        Vector3 touchPos = new Vector3(x, y, 0);
+        camera.unproject(touchPos);
+
+        Tile closestTile = null;
+        float minDistance = Float.MAX_VALUE;
+
+        for (int row = 15; row >= 0; row--)
+            for (int col = 15; col >= 0; col--)
+            {
+                Tile tile = TileMap.GetMap()[row][col];
+                tile.setTouched(false);
+                if(tile.isHit(touchPos.x, touchPos.y))
+                {
+                    float distance = tile.GetDistance(touchPos.x, touchPos.y);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestTile = tile;
+                    }
+                }
+            }
+
+        if (closestTile != null) {
+            closestTile.setTouched(true);
+        }
+        return true;
     }
 
     @Override
