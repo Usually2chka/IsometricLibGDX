@@ -3,8 +3,6 @@ package project.game.UserInterface;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-import project.game.Game.GameScreen;
 import project.game.Utils.TextureManager;
 
 public class LoadingScreen implements Screen {
@@ -24,7 +22,8 @@ public class LoadingScreen implements Screen {
     public void render(float delta) {
         if (TextureManager.GetInstance().Update()) {
             TextureManager.GetInstance().FinishLoading();
-            game.setScreen(new GameScreen(spriteBatch, game));
+            game.setScreen(new MainMenuScreen(game));
+            //game.setScreen(new GameScreen(spriteBatch, game));
         }
         else {
             //progress bar

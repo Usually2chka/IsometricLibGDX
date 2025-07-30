@@ -1,17 +1,22 @@
 package project.game.Utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Disposable;
 
 public class TextureManager implements Disposable {
     private static TextureManager instance;
+    private static Skin skin;
     private AssetManager manager;
     private TextureAtlas atlas;
 
+
     private TextureManager()
     {
+        skin = new Skin(Gdx.files.internal(Constants.PATH_TO_UI));
         manager = new AssetManager();
     }
 
@@ -25,6 +30,15 @@ public class TextureManager implements Disposable {
     public void Init()
     {
         manager.load(Constants.PATH_TO_ATLAS, TextureAtlas.class);
+    }
+
+    public Skin GetSkin()
+    {
+        // Не дай бог кто-то скажет, что я верну ссылку на эту хуйню
+        // Я отвечу - ичо? ебучий skin, разумеется, не cloneable модифицировать не могу
+        // Делать сериализацию ? - делать мне нехуй
+        // Рефлексией? - нахуй сходи, умник, все равно будут использоваться методы геттеры у скина :)
+        return skin;
     }
 
     public TextureRegion GetTextureRegion(String regionName) {

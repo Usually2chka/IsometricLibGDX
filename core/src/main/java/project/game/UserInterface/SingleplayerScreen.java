@@ -1,8 +1,14 @@
 package project.game.UserInterface;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 
 public class SingleplayerScreen implements Screen {
+
+    public SingleplayerScreen(Game game)
+    {
+
+    }
     @Override
     public void show() {
 

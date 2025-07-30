@@ -6,42 +6,93 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import project.game.Utils.TextureManager;
 
 public class MainMenuScreen implements Screen {
     private Stage stage;
     private Table table;
-    private Skin skin;
+
+    private TextButton singlePlayerButton;
+    private TextButton multiPlayerButton;
+    private TextButton exitButton;
+    private Game game;
     public MainMenuScreen(Game game)
     {
+        this.game = game;
         stage = new Stage(new ScreenViewport());
+
         Gdx.input.setInputProcessor(stage);
 
         table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
+        table.defaults();
 
-        skin = new Skin(Gdx.files.internal("ui/buttons/playbutton/playButton.json"));
+        table.add(DefineGroupButton());
+    }
+    private VerticalGroup DefineGroupButton()
+    {
+        VerticalGroup group = new VerticalGroup();
 
-        Button button = new Button(skin);
-        table.add(button);
+        singlePlayerButton = new TextButton("Singleplayer", TextureManager.GetInstance().GetSkin());
+        singlePlayerButton.setTransform(true);
+        singlePlayerButton.scaleBy(2);
+        //singlePlayerButton.setPosition(-200,0);
 
-        button.addListener(new ChangeListener() {
+        multiPlayerButton = new TextButton("Multiplayer", TextureManager.GetInstance().GetSkin());
+        multiPlayerButton.setTransform(true);
+        multiPlayerButton.scaleBy(2);
+        //multiPlayerButton.setPosition(-200,-60);
+
+        exitButton = new TextButton("Exit", TextureManager.GetInstance().GetSkin());
+        exitButton.setTransform(true);
+        exitButton.scaleBy(2);
+        //exitButton.setPosition(-200,-120);
+
+        group.addActor(singlePlayerButton);
+        group.addActor(multiPlayerButton);
+        group.addActor(exitButton);
+
+        group.fill();
+        group.space(60);
+        group.align(Align.left); // Сделать по левому краю
+
+        group.pack(); // Рассчитываем размер группы
+        group.setPosition(20, Gdx.graphics.getHeight()/2 - group.getHeight()/2);
+
+        return group;
+    }
+
+    @Override
+    public void show() {
+        singlePlayerButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new SingleplayerScreen(game));
+            }
+        });
+
+        multiPlayerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new MultiplayerScreen(game));
             }
         });
-    }
 
-    @Override
-    public void show() {
-
+        exitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
     }
 
     @Override

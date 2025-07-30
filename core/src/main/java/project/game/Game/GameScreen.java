@@ -20,10 +20,12 @@ public class GameScreen implements Screen {
     private InputSystem input;
     private GestureDetector detector;
     private World world;
-    private TileMap tileMap;
+
+    private TileMap tileMap; // dont delete this
 
     public GameScreen (SpriteBatch batch, Game game) {
         this.batch = batch;
+
 
         world = new World(new Vector2(0, 0), true);
         camera = new OrthographicCamera(Main.VIEW_WIDTH, Main.VIEW_HEIGHT);
@@ -56,6 +58,7 @@ public class GameScreen implements Screen {
         render.Render(batch);
 
         batch.end();
+
     }
 
     @Override
