@@ -1,0 +1,76 @@
+
+justButton.png
+size: 1024, 1024
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+background
+  rotate: false
+  xy: 1, 586
+  size: 779, 430
+  orig: 779, 430
+  offset: 0, 0
+  index: -1
+button1
+  rotate: false
+  xy: 1, 214
+  size: 236, 67
+  orig: 236, 67
+  offset: 0, 0
+  index: -1
+button1mirror
+  rotate: false
+  xy: 782, 949
+  size: 236, 67
+  orig: 236, 67
+  offset: 0, 0
+  index: -1
+button2
+  rotate: false
+  xy: 304, 447
+  size: 236, 66
+  orig: 236, 66
+  offset: 0, 0
+  index: -1
+button3
+  rotate: false
+  xy: 1, 283
+  size: 245, 76
+  orig: 245, 76
+  offset: 0, 0
+  index: -1
+button4
+  rotate: false
+  xy: 1, 361
+  size: 249, 75
+  orig: 249, 75
+  offset: 0, 0
+  index: -1
+button5little
+  rotate: false
+  xy: 607, 520
+  size: 69, 64
+  orig: 69, 64
+  offset: 0, 0
+  index: -1
+exitbutton
+  rotate: false
+  xy: 1, 512
+  size: 301, 72
+  orig: 301, 72
+  offset: 0, 0
+  index: -1
+multiplayerbutton
+  rotate: false
+  xy: 1, 438
+  size: 301, 72
+  orig: 301, 72
+  offset: 0, 0
+  index: -1
+playbutton
+  rotate: false
+  xy: 304, 515
+  size: 301, 69
+  orig: 301, 69
+  offset: 0, 0
+  index: -1

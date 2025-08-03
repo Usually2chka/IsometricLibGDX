@@ -1,30 +1,136 @@
 package project.game.UserInterface;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import java.awt.List;
+import project.game.Utils.TextureManager;
 
 public class MultiplayerScreen implements Screen {
     private Stage stage;
+    private Window window;
+    private ScrollPane scrollPane;
+    private List<String> list;
+    private Game game;
+    //private TextButton addButton;
+    //private TextButton removeButton;
 
     public MultiplayerScreen(Game game) {
-
+        this.game = game;
+        window = new Window("", TextureManager.GetInstance().GetSkin());
+        stage = new Stage(new ScreenViewport());
+        list = new List<>(TextureManager.GetInstance().GetSkin());
+        scrollPane = new ScrollPane(list, TextureManager.GetInstance().GetSkin());
+        //addButton = new TextButton("Create lobby", TextureManager.GetInstance().GetSkin());
+        //removeButton = new TextButton("Connect", TextureManager.GetInstance().GetSkin());
     }
 
     @Override
     public void show() {
+        list.getStyle().font.getData().setScale(2.2f);
+        Gdx.input.setInputProcessor(stage);
+
+
+        // 1. Создаем основное окно
+        window.setSize(2000,1000);
+        window.setPosition(
+            (Gdx.graphics.getWidth()/2) - 950,
+            (Gdx.graphics.getHeight()/2) - 500
+        );
+
+        // 2. сервак должен заполнять список
+        Array<String> items = new Array<>();
+        items.add("player name                      " +
+                  "name room                        " +
+                  "private room                     " +
+                  "  players");
+;
+        for (int i = 1; i <= 100; i++) {
+            items.add("some player "+ " some 2" + i);
+        }
+        // 3. Создаем List компонент
+        list.setItems(items);
+
+        // 4. Настраиваем ScrollPane
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setScrollingDisabled(true, false); // Только вертикальная прокрутка
+
+        // 5. Добавляем компоненты в окно
+        window.add(scrollPane).expand().fill().pad(75);
+
+        // 6. Добавляем кнопки управления
+
+
+        TextButton removeButton = new TextButton("Connect", TextureManager.GetInstance().GetSkin());
+        removeButton.setTransform(true);
+        //removeButton.scaleBy(2.2f);
+        removeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new HostScreen());
+            }
+        });
+
+        TextButton addButton = new TextButton("Create lobby", TextureManager.GetInstance().GetSkin());
+        addButton.setTransform(true);
+        //addButton.scaleBy(2.2f);
+        addButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new ClientScreen());
+            }
+        });
+
+        window.row();
+        DefineListeners();
+        window.add(addButton).padRight(10);
+        window.add(removeButton);
+
+        stage.addActor(window);
+    }
+    private void DefineListeners()
+    {
 
     }
+    //переделать создание лобби
+    private void addNewItem() {
+        Array<String> items = list.getItems();
+        items.add("New element" + (items.size + 1));
+        list.setItems(items);
+        scrollPane.scrollTo(0, 0, 0, 0); // Автопрокрутка вниз
+    }
+
+    //переделать под подключение
+    private void removeSelectedItem() {
+        String selected = list.getSelected();
+        if (selected != null) {
+            Array<String> items = list.getItems();
+            items.removeValue(selected, false);
+            list.setItems(items);
+        }
+    }
+
 
     @Override
-    public void render(float delta) {
-        ScreenUtils.clear(Color.BROWN);
+    public void render(float delta)
+    {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
@@ -49,6 +155,6 @@ public class MultiplayerScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        stage.dispose();
     }
 }

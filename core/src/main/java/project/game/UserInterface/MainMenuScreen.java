@@ -45,7 +45,8 @@ public class MainMenuScreen implements Screen {
         singlePlayerButton = new TextButton("Singleplayer", TextureManager.GetInstance().GetSkin());
         singlePlayerButton.setTransform(true);
         singlePlayerButton.scaleBy(2);
-        //singlePlayerButton.setPosition(-200,0);
+//        singlePlayerButton.setPosition((Gdx.graphics.getWidth()/2) - 10000,
+//                                       (Gdx.graphics.getHeight()/2)- 50000);
 
         multiPlayerButton = new TextButton("Multiplayer", TextureManager.GetInstance().GetSkin());
         multiPlayerButton.setTransform(true);
