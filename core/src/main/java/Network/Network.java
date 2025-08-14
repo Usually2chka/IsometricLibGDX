@@ -3,11 +3,13 @@ package Network;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
-public class Network {
-    public static final int PORT = 54555; // Порт для P2P-подключения
-    public static final int TIMEOUT = 5000; // Таймаут соединения
+import Network.Client.packets.AuthRequest;
+import Network.Server.packets.AuthResponse;
 
-    // Регистрация классов для KryoNet
+public class Network {
+    public static final int PORT = 54555;
+    public static final int TIMEOUT = 5000;
+
     public static void registerClasses(EndPoint endPoint) {
         Kryo kryo = endPoint.getKryo();
         kryo.register(String.class);

@@ -1,4 +1,4 @@
-package Network.Entity;
+package Network.Server;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
@@ -6,12 +6,6 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
-import java.util.UUID;
-
-import Network.AuthRequest;
-import Network.AuthResponse;
-import Network.Network;
-
 
 public class GameServer {
     private Server server;

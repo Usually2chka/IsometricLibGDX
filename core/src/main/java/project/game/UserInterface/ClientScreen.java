@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
 
-import Network.Entity.GameClient;
+import Network.Client.GameClient;
 
 public class ClientScreen implements Screen {
     private Stage stage = new Stage(new ScreenViewport());

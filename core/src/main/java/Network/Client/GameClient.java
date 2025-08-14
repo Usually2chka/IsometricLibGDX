@@ -1,4 +1,4 @@
-package Network.Entity;
+package Network.Client;
 
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -6,9 +6,9 @@ import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
 
-import Network.AuthRequest;
-import Network.AuthResponse;
+import Network.Client.packets.AuthRequest;
 import Network.Network;
+import Network.Server.packets.AuthResponse;
 
 public class GameClient {
     private Client client;
