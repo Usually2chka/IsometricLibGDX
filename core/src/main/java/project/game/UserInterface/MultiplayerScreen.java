@@ -4,12 +4,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -26,8 +22,6 @@ public class MultiplayerScreen implements Screen {
     private ScrollPane scrollPane;
     private List<String> list;
     private Game game;
-    //private TextButton addButton;
-    //private TextButton removeButton;
 
     public MultiplayerScreen(Game game) {
         this.game = game;
@@ -35,8 +29,6 @@ public class MultiplayerScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         list = new List<>(TextureManager.GetInstance().GetSkin());
         scrollPane = new ScrollPane(list, TextureManager.GetInstance().GetSkin());
-        //addButton = new TextButton("Create lobby", TextureManager.GetInstance().GetSkin());
-        //removeButton = new TextButton("Connect", TextureManager.GetInstance().GetSkin());
     }
 
     @Override
@@ -60,7 +52,7 @@ public class MultiplayerScreen implements Screen {
                   "  players");
 ;
         for (int i = 1; i <= 100; i++) {
-            items.add("some player "+ " some 2" + i);
+            //items.add("some player "+ " some 2" + i);
         }
         // 3. Создаем List компонент
         list.setItems(items);
@@ -75,30 +67,28 @@ public class MultiplayerScreen implements Screen {
         // 6. Добавляем кнопки управления
 
 
-        TextButton removeButton = new TextButton("Connect", TextureManager.GetInstance().GetSkin());
-        removeButton.setTransform(true);
-        //removeButton.scaleBy(2.2f);
-        removeButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new HostScreen());
-            }
-        });
-
-        TextButton addButton = new TextButton("Create lobby", TextureManager.GetInstance().GetSkin());
-        addButton.setTransform(true);
-        //addButton.scaleBy(2.2f);
-        addButton.addListener(new ClickListener() {
+        TextButton connectButton = new TextButton("Connect", TextureManager.GetInstance().GetSkin());
+        connectButton.setTransform(true);
+        connectButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new ClientScreen());
             }
         });
 
+        TextButton createLobbyButton = new TextButton("Create lobby", TextureManager.GetInstance().GetSkin());
+        createLobbyButton.setTransform(true);
+        createLobbyButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new HostScreen(game));
+            }
+        });
+
         window.row();
         DefineListeners();
-        window.add(addButton).padRight(10);
-        window.add(removeButton);
+        window.add(createLobbyButton).padRight(10);
+        window.add(connectButton);
 
         stage.addActor(window);
     }

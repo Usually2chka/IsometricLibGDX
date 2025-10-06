@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -16,12 +15,13 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
 
-import Network.Client.GameClient;
+import Network.GameClient;
 
 public class ClientScreen implements Screen {
     private Stage stage = new Stage(new ScreenViewport());
-    private TextField ipField, tokenField;
-    private Skin skin = new Skin(Gdx.files.internal("ui/font/mnml-font.json"));
+    private TextField ipField;
+    private TextField tokenField;
+    //private Skin skin = new Skin(Gdx.files.internal("ui/font/mnml-font.json"));
     private Table table = new Table();
     public ClientScreen() {
         Gdx.input.setInputProcessor(stage);
@@ -39,16 +39,15 @@ public class ClientScreen implements Screen {
         connectButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                try {
-                    new GameClient().connect(
-                        ipField.getText(),
-                        tokenField.getText(),
-                        "Player1" // Можно добавить поле для имени
-                    );
-                }
-                catch (IOException e) {
-                    Gdx.app.error("Network", "Ошибка подключения", e);
-                }
+//                try {
+//                    new GameClient().connect(
+//                        ipField.getText(),
+//                        "Player1" // Можно добавить поле для имени
+//                    );
+//                }
+//                catch (IOException e) {
+//                    Gdx.app.error("Network", "Ошибка подключения", e);
+//                }
             }
         });
         table.add(connectButton);

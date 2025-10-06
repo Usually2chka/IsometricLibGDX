@@ -3,17 +3,15 @@ package Network;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
-import Network.Client.packets.AuthRequest;
-import Network.Server.packets.AuthResponse;
+import Network.Packets.ChatMessage;
 
 public class Network {
     public static final int PORT = 54555;
-    public static final int TIMEOUT = 5000;
 
-    public static void registerClasses(EndPoint endPoint) {
+    public static void RegisterClasses(EndPoint endPoint)
+    {
         Kryo kryo = endPoint.getKryo();
+        kryo.register(ChatMessage.class);
         kryo.register(String.class);
-        kryo.register(AuthRequest.class);
-        kryo.register(AuthResponse.class);
     }
 }

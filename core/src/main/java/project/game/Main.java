@@ -1,19 +1,11 @@
 package project.game;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-import project.game.Game.GameScreen;
-import project.game.Game.IsometricRender;
-import project.game.UserInterface.ClientScreen;
-import project.game.UserInterface.HostScreen;
-import project.game.UserInterface.LoadingScreen;
-import project.game.UserInterface.MainMenuScreen;
-import project.game.Utils.Constants;
+import java.io.IOException;
+
+import Network.GameClient;
 import project.game.Utils.TextureManager;
 
 public class Main extends Game {
@@ -26,7 +18,13 @@ public class Main extends Game {
         spriteBatch = new SpriteBatch();
         //this.setScreen(new MainMenuScreen(this));
         TextureManager.GetInstance().Init();
-        this.setScreen(new LoadingScreen(spriteBatch, this));
+        try {
+            GameClient player = new GameClient();
+            player.sendMessage("");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        //this.setScreen(new LoadingScreen(spriteBatch, this));
         //this.setScreen(new GameScreen(spriteBatch));
     }
 }
