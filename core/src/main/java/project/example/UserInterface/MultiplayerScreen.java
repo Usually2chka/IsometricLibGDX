@@ -1,4 +1,4 @@
-package project.game.UserInterface;
+package project.example.UserInterface;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import project.game.Utils.TextureManager;
+import project.example.Utils.TextureManager;
 
 public class MultiplayerScreen implements Screen {
     private Stage stage;

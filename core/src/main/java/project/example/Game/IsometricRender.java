@@ -1,4 +1,4 @@
-package project.game.Game;
+package project.example.Game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

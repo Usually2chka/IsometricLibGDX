@@ -1,4 +1,4 @@
-package project.game.Utils;
+package project.example.Utils;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import project.game.Game.Entitys.Tile;
-import project.game.Game.TileMap;
+import project.example.Game.Entitys.Tile;
+import project.example.Game.TileMap;
 
 public class InputSystem implements GestureDetector.GestureListener {
     private final OrthographicCamera camera;

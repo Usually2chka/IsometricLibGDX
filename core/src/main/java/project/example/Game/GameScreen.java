@@ -1,4 +1,4 @@
-package project.game.Game;
+package project.example.Game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -10,8 +10,8 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 
-import project.game.Main;
-import project.game.Utils.InputSystem;
+import project.example.Main;
+import project.example.Utils.InputSystem;
 
 public class GameScreen implements Screen {
     private SpriteBatch batch;

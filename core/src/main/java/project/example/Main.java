@@ -1,12 +1,12 @@
-package project.game;
+package project.example;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.io.IOException;
 
-import Network.GameClient;
-import project.game.Utils.TextureManager;
+import project.example.Network.GameClient;
+import project.example.Utils.TextureManager;
 
 public class Main extends Game {
     public static final int VIEW_WIDTH = 1500;
@@ -20,7 +20,6 @@ public class Main extends Game {
         TextureManager.GetInstance().Init();
         try {
             GameClient player = new GameClient();
-            player.sendMessage("");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,4 +1,4 @@
-package project.game.UserInterface;
+package project.example.UserInterface;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -12,10 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-
-import java.io.IOException;
-
-import Network.GameClient;
 
 public class ClientScreen implements Screen {
     private Stage stage = new Stage(new ScreenViewport());

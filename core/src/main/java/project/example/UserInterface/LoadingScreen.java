@@ -1,9 +1,9 @@
-package project.game.UserInterface;
+package project.example.UserInterface;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import project.game.Utils.TextureManager;
+import project.example.Utils.TextureManager;
 
 public class LoadingScreen implements Screen {
     private Game game;

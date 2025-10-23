@@ -1,4 +1,4 @@
-package project.game.UserInterface;
+package project.example.UserInterface;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;

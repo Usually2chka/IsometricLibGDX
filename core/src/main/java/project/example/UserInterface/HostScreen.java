@@ -1,4 +1,4 @@
-package project.game.UserInterface;
+package project.example.UserInterface;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -21,9 +21,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import java.io.IOException;
-
-import project.game.Utils.TextureManager;
+import project.example.Utils.TextureManager;
 
 public class HostScreen implements Screen {
     private Stage stage;

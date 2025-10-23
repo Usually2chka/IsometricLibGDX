@@ -1,4 +1,4 @@
-package project.game.Utils;
+package project.example.Utils;
 
 public class Constants {
     public  final static int TILE_WIDTH = 64;

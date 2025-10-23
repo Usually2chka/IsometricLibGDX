@@ -1,4 +1,4 @@
-package project.game.Game.Entitys;
+package project.example.Game.Entitys;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
