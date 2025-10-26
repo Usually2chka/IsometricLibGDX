@@ -3,6 +3,10 @@ package project.example.UserInterface;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+import java.io.IOException;
+
+import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 
 public class LoadingScreen implements Screen {
@@ -15,7 +19,7 @@ public class LoadingScreen implements Screen {
     }
     @Override
     public void show() {
-
+        GameClient player = new GameClient();
     }
 
     @Override

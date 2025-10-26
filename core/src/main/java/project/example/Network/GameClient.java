@@ -13,7 +13,8 @@ import project.example.Network.Packets.HandshakePacket;
 public class GameClient {
     private Client client;
 
-    public GameClient() throws IOException {
+    public GameClient() {
+
         client = new Client();
 
         Network.RegisterClasses(client);
@@ -32,6 +33,11 @@ public class GameClient {
         });
 
         client.start();
-        client.connect(10000, "10.0.2.2", PORT); // localhost
+        
+        try {
+            client.connect(10000, "10.0.2.2", PORT); // localhost
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.io.IOException;
 
 import project.example.Network.GameClient;
+import project.example.UserInterface.LoadingScreen;
 import project.example.Utils.TextureManager;
 
 public class Main extends Game {
@@ -18,12 +19,7 @@ public class Main extends Game {
         spriteBatch = new SpriteBatch();
         //this.setScreen(new MainMenuScreen(this));
         TextureManager.GetInstance().Init();
-        try {
-            GameClient player = new GameClient();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        //this.setScreen(new LoadingScreen(spriteBatch, this));
+        this.setScreen(new LoadingScreen(spriteBatch, this));
         //this.setScreen(new GameScreen(spriteBatch));
     }
 }
