@@ -12,21 +12,23 @@ import project.example.Utils.TextureManager;
 public class LoadingScreen implements Screen {
     private Game game;
     private SpriteBatch spriteBatch;
+    GameClient client;
     public LoadingScreen(SpriteBatch spriteBatch, Game game)
     {
         this.spriteBatch = spriteBatch;
         this.game = game;
+
     }
     @Override
     public void show() {
-        GameClient player = new GameClient();
+        client = new GameClient();
     }
 
     @Override
     public void render(float delta) {
         if (TextureManager.GetInstance().Update()) {
             TextureManager.GetInstance().FinishLoading();
-            game.setScreen(new MainMenuScreen(game));
+            game.setScreen(new MainMenuScreen(game, client));
             //game.setScreen(new GameScreen(spriteBatch, game));
         }
         else {

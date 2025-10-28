@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 
 public class MainMenuScreen implements Screen {
@@ -24,9 +25,11 @@ public class MainMenuScreen implements Screen {
     private TextButton multiPlayerButton;
     private TextButton exitButton;
     private Game game;
-    public MainMenuScreen(Game game)
+    private GameClient client;
+    public MainMenuScreen(Game game, GameClient client)
     {
         this.game = game;
+        this.client = client;
         stage = new Stage(new ScreenViewport());
 
         Gdx.input.setInputProcessor(stage);
@@ -84,7 +87,7 @@ public class MainMenuScreen implements Screen {
         multiPlayerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new MultiplayerScreen(game));
+                game.setScreen(new MultiplayerScreen(game, client));
             }
         });
 

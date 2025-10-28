@@ -21,6 +21,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import project.example.Network.GameClient;
+import project.example.Network.Packets.LobbyPacket;
+import project.example.Network.Entyties.Player;
 import project.example.Utils.TextureManager;
 
 public class HostScreen implements Screen {
@@ -35,19 +38,22 @@ public class HostScreen implements Screen {
     private Window window;
 
     private short quantityPlayersInRoom;
-    private short sizeWorld; //
+    private short sizeWorld;
     private boolean isPressedPrivateRoom;
-    private boolean isFallBlocks; //
-    private String nameRoom; //
-    public HostScreen(Game game) {
+    private boolean isFallBlocks;
+    private String nameRoom;
+    private Player hostPlayer;
+    private GameClient client;
+    public HostScreen(Game game, GameClient client) {
         this.game = game;
         window = new Window("", TextureManager.GetInstance().GetSkin());
         table = new Table();
+        this.client = client;
 
         defineFirstCell();
         defineSecondCell();
         defineThirdCell();
-        defineCreateButton();
+        defineButtons();
 
         window.setSize(1500,1000);
         window.setPosition(
@@ -174,7 +180,7 @@ public class HostScreen implements Screen {
         table.add(firstCell).row();
     }
 
-    private void defineCreateButton() {
+    private void defineButtons() {
         firstCell = new HorizontalGroup();
         secondPartOfGroup = new VerticalGroup();
         TextButton buttonToBack = new TextButton("Back", TextureManager.GetInstance().GetSkin());
@@ -182,13 +188,16 @@ public class HostScreen implements Screen {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                hostPlayer = new Player();
+                client.createLobby(new LobbyPacket(nameRoom, quantityPlayersInRoom, isPressedPrivateRoom, sizeWorld, isFallBlocks, hostPlayer));
 
+                game.setScreen(new LobbyScreen());
             }
         });
         buttonToBack.addListener(new ClickListener() {
            @Override
            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MultiplayerScreen(game));
+                game.setScreen(new MultiplayerScreen(game, client));
            }
         });
         firstCell.addActor(buttonToBack);

@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 
 public class MultiplayerScreen implements Screen {
@@ -22,13 +23,15 @@ public class MultiplayerScreen implements Screen {
     private ScrollPane scrollPane;
     private List<String> list;
     private Game game;
+    private GameClient client;
 
-    public MultiplayerScreen(Game game) {
+    public MultiplayerScreen(Game game, GameClient client) {
         this.game = game;
         window = new Window("", TextureManager.GetInstance().GetSkin());
         stage = new Stage(new ScreenViewport());
         list = new List<>(TextureManager.GetInstance().GetSkin());
         scrollPane = new ScrollPane(list, TextureManager.GetInstance().GetSkin());
+        this.client = client;
     }
 
     @Override
@@ -81,7 +84,7 @@ public class MultiplayerScreen implements Screen {
         createLobbyButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new HostScreen(game));
+                game.setScreen(new HostScreen(game, client));
             }
         });
 
