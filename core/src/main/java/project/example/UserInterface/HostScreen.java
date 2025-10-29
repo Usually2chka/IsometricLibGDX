@@ -69,14 +69,6 @@ public class HostScreen implements Screen {
         group = new Group();
     }
 
-    private void createNetwork(){
-//        try {
-//            //host = new GameServer();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
-
     private void defineFirstCell() {
         firstCell = new HorizontalGroup();
         firtPartOfGroup = new VerticalGroup();
@@ -190,7 +182,6 @@ public class HostScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 hostPlayer = new Player();
                 client.createLobby(new LobbyPacket(nameRoom, quantityPlayersInRoom, isPressedPrivateRoom, sizeWorld, isFallBlocks, hostPlayer));
-
                 game.setScreen(new LobbyScreen());
             }
         });
@@ -207,8 +198,6 @@ public class HostScreen implements Screen {
         table.add(firstCell).row();
 
     }
-
-    public void giveDataAboutServer(){}
 
     @Override
     public void show() {

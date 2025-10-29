@@ -3,9 +3,6 @@ package project.example;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import java.io.IOException;
-
-import project.example.Network.GameClient;
 import project.example.UserInterface.LoadingScreen;
 import project.example.Utils.TextureManager;
 

@@ -1,5 +1,6 @@
 package project.example.Network;
 
+import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -8,29 +9,30 @@ import java.io.IOException;
 
 import static project.example.Network.Network.PORT;
 
+import project.example.Network.Entyties.Lobby;
 import project.example.Network.Packets.HandshakePacket;
 import project.example.Network.Packets.LobbyPacket;
-import project.example.Network.Packets.SuccessPacket;
 
 public class GameClient {
     private Client client;
-
+    private Array<Lobby> lobbies;
     public GameClient() {
 
         client = new Client();
+        lobbies = new Array<>();
 
         Network.RegisterClasses(client);
 
         client.addListener(new Listener() {
             @Override
             public void connected(Connection connection) {
+
             }
 
             @Override
             public void received(Connection connection, Object object) {
-                if (object instanceof HandshakePacket);
-                if (object instanceof  SuccessPacket)
-                    updateClient((SuccessPacket) object);
+                if (object instanceof HandshakePacket)
+                    updateClient((HandshakePacket) object);
             }
         });
 
@@ -46,15 +48,20 @@ public class GameClient {
 
     public void updateClient(Object object)
     {
-        //TODO Раздумиями было понято, что лучше делать без флажка "isSuccess" и обрабатывать некоретное введение на клиете, и
-        //TODO                                                                                              (по возможности) на сервере
-        //if (((SuccessPacket) object).isSuccess)
-
-        //TODOОбновление клиентам, чтобы они обновили видимые лобаки
+        for (Lobby lobby : ((HandshakePacket) object).lobbies) {
+            lobbies.add(lobby);
+        }
+        //lobbies = ((HandshakePacket) object).lobbies;
+        //TODO Обновление клиентам, чтобы они обновили видимые лобаки
     }
 
     public void createLobby(LobbyPacket lobbyPacket)
     {
-        client.sendTCP(lobbyPacket);//TODO ОБРАБОТКА ЛОББИ
+        client.sendTCP(lobbyPacket);
+    }
+
+    public Array<Lobby> getLobbies()
+    {
+        return new Array<>(lobbies);
     }
 }
