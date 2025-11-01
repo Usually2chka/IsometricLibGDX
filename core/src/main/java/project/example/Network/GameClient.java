@@ -8,19 +8,22 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static project.example.Network.Network.PORT;
 
 import project.example.Network.Entyties.Lobby;
+import project.example.Network.Entyties.Player;
 import project.example.Network.Packets.HandshakePacket;
 import project.example.Network.Packets.LobbyPacket;
+import project.example.Network.Packets.SuccessPacket;
 
 public class GameClient {
     private Client client;
-    private Server localServer;
     private Array<Lobby> lobbies;
+    private Player player;
     public GameClient() {
-
+        player = new Player();
         client = new Client();
         lobbies = new Array<>();
 
@@ -34,6 +37,8 @@ public class GameClient {
 
             @Override
             public void received(Connection connection, Object object) {
+                if (object instanceof SuccessPacket)
+                    lobbies.add(((SuccessPacket) object).lobby);
                 if (object instanceof HandshakePacket)
                     updateClient((HandshakePacket) object);
             }
@@ -50,10 +55,9 @@ public class GameClient {
 
     public void updateClient(Object object)
     {
-        for (Lobby lobby : ((HandshakePacket) object).lobbies) {
+        for (Lobby lobby: ((HandshakePacket) object).lobbies) {
             lobbies.add(lobby);
         }
-        //TODO Обновление клиентам, чтобы они обновили видимые лобаки
     }
 
     public void createLobby(LobbyPacket lobbyPacket)

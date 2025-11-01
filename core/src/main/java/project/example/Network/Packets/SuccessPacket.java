@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import project.example.Network.Entyties.Lobby;
 
 public class SuccessPacket {
-    public boolean isSuccess;
-    public ArrayList<Lobby> lobbies;
+    public Lobby lobby;
+
+    public SuccessPacket() {}
+
+    public SuccessPacket(Lobby lobby)
+    {
+        this.lobby = lobby;
+    }
 }

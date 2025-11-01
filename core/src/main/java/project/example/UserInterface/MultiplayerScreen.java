@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import project.example.Network.Entyties.Lobby;
 import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 
