@@ -1,9 +1,11 @@
 package project.example.Network;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
 
@@ -15,6 +17,7 @@ import project.example.Network.Packets.LobbyPacket;
 
 public class GameClient {
     private Client client;
+    private Server localServer;
     private Array<Lobby> lobbies;
     public GameClient() {
 
@@ -39,10 +42,9 @@ public class GameClient {
         client.start();
 
         try {
-            client.connect(10000, "10.0.2.2", PORT); // localhost
+            client.connect(2000, "10.0.2.2", PORT); // localhost
         } catch (IOException e) {
-            throw new RuntimeException(e);
-            /*TODO Сделать new mainmenuscreen + уведомление, что у клиента нет интернета + тоже самое сделать при повторной попытке зайти в mpScreen*/
+            Gdx.app.log("Отсутствует подключение к серверу", "");
         }
     }
 
@@ -51,7 +53,6 @@ public class GameClient {
         for (Lobby lobby : ((HandshakePacket) object).lobbies) {
             lobbies.add(lobby);
         }
-        //lobbies = ((HandshakePacket) object).lobbies;
         //TODO Обновление клиентам, чтобы они обновили видимые лобаки
     }
 
@@ -63,5 +64,12 @@ public class GameClient {
     public Array<Lobby> getLobbies()
     {
         return new Array<>(lobbies);
+    }
+    public boolean getConnect()
+    {
+        return client.isConnected();
+    }
+    public void tryAgain() throws IOException {
+        client.connect(1000, "10.0.2.2", PORT); // localhost
     }
 }

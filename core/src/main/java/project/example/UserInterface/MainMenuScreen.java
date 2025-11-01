@@ -6,13 +6,19 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.io.IOException;
 
 import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
@@ -36,9 +42,11 @@ public class MainMenuScreen implements Screen {
 
         table = new Table();
         table.setFillParent(true);
+        table.padRight(228); //ширина кнопки 114, затем мы умнажаем размер кнопки на 2 ".scaleBy(2)"
         stage.addActor(table);
         table.defaults();
 
+        DefineGroupButton().setPosition(0, 0);
         table.add(DefineGroupButton());
     }
     private VerticalGroup DefineGroupButton()
@@ -48,18 +56,14 @@ public class MainMenuScreen implements Screen {
         singlePlayerButton = new TextButton("Singleplayer", TextureManager.GetInstance().GetSkin());
         singlePlayerButton.setTransform(true);
         singlePlayerButton.scaleBy(2);
-//        singlePlayerButton.setPosition((Gdx.graphics.getWidth()/2) - 10000,
-//                                       (Gdx.graphics.getHeight()/2)- 50000);
 
         multiPlayerButton = new TextButton("Multiplayer", TextureManager.GetInstance().GetSkin());
         multiPlayerButton.setTransform(true);
         multiPlayerButton.scaleBy(2);
-        //multiPlayerButton.setPosition(-200,-60);
 
         exitButton = new TextButton("Exit", TextureManager.GetInstance().GetSkin());
         exitButton.setTransform(true);
         exitButton.scaleBy(2);
-        //exitButton.setPosition(-200,-120);
 
         group.addActor(singlePlayerButton);
         group.addActor(multiPlayerButton);
@@ -67,11 +71,6 @@ public class MainMenuScreen implements Screen {
 
         group.fill();
         group.space(60);
-        group.align(Align.left); // Сделать по левому краю
-
-        group.pack(); // Рассчитываем размер группы
-        group.setPosition(20, Gdx.graphics.getHeight()/2 - group.getHeight()/2);
-
         return group;
     }
 
@@ -87,7 +86,11 @@ public class MainMenuScreen implements Screen {
         multiPlayerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new MultiplayerScreen(game, client));
+                if (client.getConnect())
+                    game.setScreen(new MultiplayerScreen(game, client));
+                else {
+                    showConnectionErrorDialog();
+                }
             }
         });
 
@@ -129,5 +132,75 @@ public class MainMenuScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+    }
+    private void showConnectionErrorDialog() {
+        Dialog dialog = new Dialog("", TextureManager.GetInstance().GetSkin()) {
+            @Override
+            protected void result(Object object) {
+                // Используем понятные строковые константы для проверки
+                if ("TRY_AGAIN".equals(object)) {
+                    System.out.println("Попытка переподключения...");
+
+                    // Пытаемся подключиться в отдельном потоке
+                    new Thread(() -> {
+                        boolean connected = false;
+                        try {
+                            // Пытаемся подключиться
+                            client.tryAgain();
+                            connected = client.getConnect();
+                        } catch (Exception e) {
+                            System.out.println("Ошибка переподключения: " + e.getMessage());
+                        }
+
+                        final boolean finalConnected = connected;
+
+                        // Возвращаемся в UI-поток для обновления интерфейса
+                        Gdx.app.postRunnable(() -> {
+                            if (finalConnected) {
+                                // Если подключились успешно - переходим на экран мультиплеера
+                                System.out.println("Подключение установлено!");
+                                game.setScreen(new MultiplayerScreen(game, client));
+                            } else {
+                                // Если не подключились - снова показываем диалог
+                                System.out.println("Подключение не удалось, показываем диалог снова");
+                                showConnectionErrorDialog();
+                            }
+                        });
+                    }).start();
+
+                }
+                else if ("OK".equals(object))
+                    hide();
+            }
+        };
+
+        // Настройка содержимого диалога
+        Label label = new Label("There is no internet connection", TextureManager.GetInstance().GetSkin());
+        label.setFontScale(2f);
+        dialog.getContentTable().add(label).pad(20);
+
+        // Создаем кнопки с увеличенным шрифтом
+        TextButton tryAgainButton = new TextButton("TRY AGAIN", TextureManager.GetInstance().GetSkin());
+        tryAgainButton.getLabel().setFontScale(2.5f);
+
+        TextButton okButton = new TextButton("OK", TextureManager.GetInstance().GetSkin());
+        okButton.getLabel().setFontScale(2.5f);
+
+        // Используем строковые константы вместо boolean значений
+        dialog.getButtonTable().defaults().space(350);
+        dialog.button(tryAgainButton, "TRY_AGAIN");
+        dialog.button(okButton, "OK");
+
+        // Настройки размера и позиции
+        dialog.show(stage);
+        dialog.setSize(700, 200);
+        dialog.setPosition(
+            stage.getWidth() / 2f - dialog.getWidth() / 2f,
+            stage.getHeight() / 2f - dialog.getHeight() / 2f
+        );
+
+        // Настройка внешнего вида
+        dialog.setColor(1, 1, 1, 1);
+        dialog.setBackground(TextureManager.GetInstance().GetSkin().newDrawable("white", Color.DARK_GRAY));
     }
 }
