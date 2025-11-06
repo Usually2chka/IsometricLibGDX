@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -16,17 +17,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import project.example.Network.GameClient;
-import project.example.Network.Packets.LobbyPacket;
+import project.example.Network.Packets.CreateLobbyPacket;
 import project.example.Network.Entyties.Player;
 import project.example.Utils.TextureManager;
 
-public class HostScreen implements Screen {
+public class CreateLobbyScreen implements Screen {
     private Stage stage;
     private Game game;
     //private GameServer host;
@@ -37,14 +39,14 @@ public class HostScreen implements Screen {
     private VerticalGroup secondPartOfGroup;
     private Window window;
 
-    private short quantityPlayersInRoom;
-    private short sizeWorld;
+    private int quantityPlayersInRoom;
+    private int sizeWorld;
     private boolean isPressedPrivateRoom;
     private boolean isFallBlocks;
     private String nameRoom;
     private Player hostPlayer;
     private GameClient client;
-    public HostScreen(Game game, GameClient client) {
+    public CreateLobbyScreen(Game game, GameClient client) {
         this.game = game;
         window = new Window("", TextureManager.GetInstance().GetSkin());
         table = new Table();
@@ -94,16 +96,17 @@ public class HostScreen implements Screen {
 
         secondPartOfGroup = new VerticalGroup();
         secondPartOfGroup.addActor(new Label("Quantity players", TextureManager.GetInstance().GetSkin()));
-        SelectBox<Short> list = new SelectBox<>(TextureManager.GetInstance().GetSkin());
-        Array<Short> listWithQuantityPlayers = new Array<>();
-        listWithQuantityPlayers.add(Short.parseShort("2"));
-        listWithQuantityPlayers.add(Short.parseShort("3"));
-        listWithQuantityPlayers.add(Short.parseShort("4"));
+        SelectBox<Integer> list = new SelectBox<>(TextureManager.GetInstance().GetSkin());
+        Array<Integer> listWithQuantityPlayers = new Array<>();
+        listWithQuantityPlayers.add(2);
+        listWithQuantityPlayers.add(3);
+        listWithQuantityPlayers.add(4);
         list.setItems(listWithQuantityPlayers);
-        list.addListener(new ClickListener() {
+        quantityPlayersInRoom = 2; //default value
+        list.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                quantityPlayersInRoom = Short.parseShort("" + list.getSelectedIndex());
+            public void changed(ChangeEvent event, Actor actor) {
+                quantityPlayersInRoom = (int) list.getSelected();
             }
         });
         secondPartOfGroup.addActor(list);
@@ -137,18 +140,20 @@ public class HostScreen implements Screen {
 
         secondPartOfGroup = new VerticalGroup();
         secondPartOfGroup.addActor(new Label("Size world", TextureManager.GetInstance().GetSkin()));
-        SelectBox<Short> list = new SelectBox<>(TextureManager.GetInstance().GetSkin());
-        Array<Short> listWithSizeWorld = new Array<>();
-        listWithSizeWorld.add(Short.parseShort("16"));
-        listWithSizeWorld.add(Short.parseShort("32"));
-        listWithSizeWorld.add(Short.parseShort("64"));
+        SelectBox<Integer> list = new SelectBox<>(TextureManager.GetInstance().GetSkin());
+        Array<Integer> listWithSizeWorld = new Array<>();
+        listWithSizeWorld.add(16);
+        listWithSizeWorld.add(32);
+        listWithSizeWorld.add(64);
         list.setItems(listWithSizeWorld);
-        list.addListener(new ClickListener() {
+        sizeWorld = 16; //default value
+        list.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                sizeWorld = Short.parseShort("" + list.getSelectedIndex());
+            public void changed(ChangeEvent event, Actor actor) {
+                sizeWorld = (int) list.getSelected();
             }
         });
+
         secondPartOfGroup.addActor(list);
         firstCell.addActor(secondPartOfGroup);
         firstCell.padBottom(130f);
@@ -159,16 +164,13 @@ public class HostScreen implements Screen {
         firstCell = new HorizontalGroup();
         secondPartOfGroup = new VerticalGroup();
         TextField textField = new TextField("", TextureManager.GetInstance().GetSkin());
+
         secondPartOfGroup.addActor(new Label("Name room", TextureManager.GetInstance().GetSkin()));
         secondPartOfGroup.addActor(textField);
-        textField.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                nameRoom = textField.getMessageText();
-            }
-        });
+        textField.setTextFieldListener(((field, c) -> {
+            nameRoom = field.getText();
+        }));
         firstCell.addActor(secondPartOfGroup);
-        //firstCell.padBottom(130f);
         table.add(firstCell).row();
     }
 
@@ -180,8 +182,8 @@ public class HostScreen implements Screen {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                hostPlayer = new Player();
-                client.createLobby(new LobbyPacket(nameRoom, quantityPlayersInRoom, isPressedPrivateRoom, sizeWorld, isFallBlocks, hostPlayer));
+                hostPlayer = new Player("admin");
+                client.createLobby(new CreateLobbyPacket(nameRoom, quantityPlayersInRoom, isPressedPrivateRoom, sizeWorld, isFallBlocks, hostPlayer));
                 game.setScreen(new LobbyScreen());
             }
         });

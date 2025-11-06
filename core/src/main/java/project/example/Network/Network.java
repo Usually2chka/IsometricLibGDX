@@ -7,9 +7,11 @@ import java.util.ArrayList;
 
 import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
+import project.example.Network.Packets.ConnectPacket;
 import project.example.Network.Packets.HandshakePacket;
+import project.example.Network.Packets.CreateLobbyPacket;
+import project.example.Network.Packets.JoinToLobbyPacket;
 import project.example.Network.Packets.LobbyPacket;
-import project.example.Network.Packets.SuccessPacket;
 
 public class Network {
     public static final int PORT = 55555;
@@ -18,10 +20,11 @@ public class Network {
     {
         Kryo kryo = endPoint.getKryo();
         kryo.register(HandshakePacket.class);
-        kryo.register(LobbyPacket.class);
+        kryo.register(CreateLobbyPacket.class);
         kryo.register(Player.class);
-        kryo.register(SuccessPacket.class);
+        kryo.register(LobbyPacket.class);
         kryo.register(ArrayList.class);
         kryo.register(Lobby.class);
+        kryo.register(JoinToLobbyPacket.class);
     }
 }

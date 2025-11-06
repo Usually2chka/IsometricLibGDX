@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -21,7 +22,7 @@ public class MultiplayerScreen implements Screen {
     private Stage stage;
     private Window window;
     private ScrollPane scrollPane;
-    private List<String> list;
+    private List<Lobby> list;
     private Game game;
     private GameClient client;
 
@@ -29,14 +30,14 @@ public class MultiplayerScreen implements Screen {
         this.game = game;
         window = new Window("", TextureManager.GetInstance().GetSkin());
         stage = new Stage(new ScreenViewport());
-        list = new List(TextureManager.GetInstance().GetSkin());
+        list = new List<Lobby>(TextureManager.GetInstance().GetSkin());
         scrollPane = new ScrollPane(list, TextureManager.GetInstance().GetSkin());
         this.client = client;
     }
 
     @Override
     public void show() {
-        list.getStyle().font.getData().setScale(2.2f);
+        list.getStyle().font.getData().setScale(3f);
         Gdx.input.setInputProcessor(stage);
 
 
@@ -57,30 +58,61 @@ public class MultiplayerScreen implements Screen {
         window.add(scrollPane).expand().fill().pad(75);
 
         // Добавляем кнопки управления
-
+        HorizontalGroup group = new HorizontalGroup();
         TextButton connectButton = new TextButton("Connect", TextureManager.GetInstance().GetSkin());
+        connectButton.setScale(1.3f);
         connectButton.setTransform(true);
         connectButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new ClientScreen());
+                Lobby selectLobby = list.getSelected();
+                client.connectToLobby(selectLobby, allowed -> {
+                    if (client.state == GameClient.ClientState.IN_LOBBY)
+                    {
+                        Gdx.app.log("тут", "");
+                        selectLobby.joinToLobby(client.player);
+                        game.setScreen(new LobbyScreen());
+                    }
+                    else
+                    {
+                        //dialog окошко, в котором будут причины почему не может
+                    }
+                });
             }
         });
 
         TextButton createLobbyButton = new TextButton("Create lobby", TextureManager.GetInstance().GetSkin());
+        createLobbyButton.setScale(1.3f);
         createLobbyButton.setTransform(true);
         createLobbyButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new HostScreen(game, client));
+                game.setScreen(new CreateLobbyScreen(game, client));
             }
         });
 
+
+        TextButton buttonToBack = new TextButton("Back", TextureManager.GetInstance().GetSkin());
+        buttonToBack.setScale(1.3f);
+        buttonToBack.setTransform(true);
+        buttonToBack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                list.getStyle().font.getData().setScale(1); // Возвращаем изначальный размер, чтобы при переходе на экран не ломался шрифт
+                game.setScreen(new MainMenuScreen(game, client));
+            }
+        });
+
+
         window.row();
         DefineListeners();
-        window.add(createLobbyButton).padRight(10);
-        window.add(connectButton);
+        group.addActor(buttonToBack);
 
+        group.addActor(createLobbyButton);
+        group.addActor(connectButton);
+        group.space(550);
+        group.padRight(50);
+        window.add(group);
         stage.addActor(window);
     }
     private void DefineListeners()
