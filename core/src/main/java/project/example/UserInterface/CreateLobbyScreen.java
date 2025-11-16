@@ -23,6 +23,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import java.util.ArrayList;
+
+import project.example.Network.Entyties.Lobby;
 import project.example.Network.GameClient;
 import project.example.Network.Packets.CreateLobbyPacket;
 import project.example.Network.Entyties.Player;
@@ -31,7 +34,6 @@ import project.example.Utils.TextureManager;
 public class CreateLobbyScreen implements Screen {
     private Stage stage;
     private Game game;
-    //private GameServer host;
     private Table table;
     private Group group;
     private HorizontalGroup firstCell;
@@ -57,7 +59,7 @@ public class CreateLobbyScreen implements Screen {
         defineThirdCell();
         defineButtons();
 
-        window.setSize(1500,1000);
+        window.setSize(1500,1050);
         window.setPosition(
             (Gdx.graphics.getWidth()/2) - 730,
             (Gdx.graphics.getHeight()/2) - 500
@@ -182,9 +184,13 @@ public class CreateLobbyScreen implements Screen {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                hostPlayer = new Player("admin");
-                client.createLobby(new CreateLobbyPacket(nameRoom, quantityPlayersInRoom, isPressedPrivateRoom, sizeWorld, isFallBlocks, hostPlayer));
-                game.setScreen(new LobbyScreen());
+                hostPlayer = GameClient.player;
+                Lobby lobby = new Lobby(nameRoom, quantityPlayersInRoom, isPressedPrivateRoom, hostPlayer, sizeWorld, isFallBlocks);
+
+                client.createLobby(lobby, response -> {
+                    lobby.id = response;
+                });
+                game.setScreen(new LobbyScreen(lobby, game, client));
             }
         });
         buttonToBack.addListener(new ClickListener() {

@@ -3,22 +3,31 @@ package project.example.UserInterface;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.util.function.Consumer;
 
 import project.example.Network.Entyties.Lobby;
 import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 
 public class MultiplayerScreen implements Screen {
+    private Consumer<Array<Lobby>> lobbyConsumer;
     private Stage stage;
     private Window window;
     private ScrollPane scrollPane;
@@ -49,8 +58,7 @@ public class MultiplayerScreen implements Screen {
         );
         // Создаем List компонент
         list.setItems(client.getLobbies());
-
-        // Настраиваем ScrollPane
+            // Настраиваем ScrollPane
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollingDisabled(true, false); // Только вертикальная прокрутка
 
@@ -69,13 +77,42 @@ public class MultiplayerScreen implements Screen {
                 client.connectToLobby(selectLobby, allowed -> {
                     if (client.state == GameClient.ClientState.IN_LOBBY)
                     {
-                        Gdx.app.log("тут", "");
-                        selectLobby.joinToLobby(client.player);
-                        game.setScreen(new LobbyScreen());
+                        client.state = GameClient.ClientState.ALLOWED;
+                        Gdx.app.log("", "" + selectLobby.getPlayers().size());
+
+                        game.setScreen(new LobbyScreen(selectLobby, game, client));
                     }
                     else
                     {
-                        //dialog окошко, в котором будут причины почему не может
+                        Dialog dialog = new Dialog("", TextureManager.GetInstance().GetSkin()) {
+                            @Override
+                            protected void result(Object object) {
+                                this.hide();
+                            }
+                        };
+
+                        // Текст сообщения
+                        Label message = new Label("Lobby is full", TextureManager.GetInstance().GetSkin());
+                        message.setAlignment(Align.center);
+                        dialog.getContentTable().pad(12f);
+                        dialog.getContentTable().add(message).width(300f).padBottom(8f);
+
+                        dialog.button("OK", true);
+
+                        // запретить закрытие кликом вне диалога
+                        dialog.setModal(true);
+                        dialog.setMovable(false);
+
+                        dialog.show(stage);
+
+                        dialog.setSize(500, 200);
+                        dialog.setPosition(
+                            stage.getWidth() / 2f - dialog.getWidth() / 2f,
+                            stage.getHeight() / 2f - dialog.getHeight() / 2f
+                        );
+
+                        dialog.setColor(1, 1, 1, 1);
+                        dialog.setBackground(TextureManager.GetInstance().GetSkin().newDrawable("white", Color.DARK_GRAY));
                     }
                 });
             }
@@ -90,7 +127,6 @@ public class MultiplayerScreen implements Screen {
                 game.setScreen(new CreateLobbyScreen(game, client));
             }
         });
-
 
         TextButton buttonToBack = new TextButton("Back", TextureManager.GetInstance().GetSkin());
         buttonToBack.setScale(1.3f);
@@ -114,18 +150,29 @@ public class MultiplayerScreen implements Screen {
         group.padRight(50);
         window.add(group);
         stage.addActor(window);
+
+        lobbyConsumer = this::updateLobbies;
+        client.addLobbyListener(lobbyConsumer);//lobbies -> list.setItems(lobbies));
+
+//        client.updateClient(changedLobbies -> {
+//            list.setItems(changedLobbies);
+//        });
     }
     private void DefineListeners()
     {
 
     }
 
+    private void updateLobbies(Array<Lobby> lobbies) {
+        list.setItems(lobbies);
+    }
 
     @Override
     public void render(float delta)
     {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        ScreenUtils.clear(Color.BLUE);
         stage.act(delta);
+
         stage.draw();
     }
 
@@ -146,7 +193,7 @@ public class MultiplayerScreen implements Screen {
 
     @Override
     public void hide() {
-
+        client.removeLobbyListener(lobbyConsumer);
     }
 
     @Override

@@ -4,7 +4,11 @@ import java.util.ArrayList;
 
 import project.example.Network.Entyties.Lobby;
 
-public class HandshakePacket {
+public class AllLobbiesPacket {
     public ArrayList<Lobby> lobbies;
-    public int playerId;
+
+    public AllLobbiesPacket()
+    {
+
+    }
 }

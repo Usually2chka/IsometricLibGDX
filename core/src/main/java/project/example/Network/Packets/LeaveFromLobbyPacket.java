@@ -4,12 +4,9 @@ import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
 import project.example.Network.GameClient;
 
-public class ConnectPacket {
-    public Player player;
+public class LeaveFromLobbyPacket {
+    public Player player = GameClient.player;
     public Lobby lobby;
-    public boolean isSuccess;
-    public ConnectPacket()
-    {
-
-    }
+    public LeaveFromLobbyPacket() { }
+    public LeaveFromLobbyPacket(Lobby lobby) { this.lobby = lobby; }
 }

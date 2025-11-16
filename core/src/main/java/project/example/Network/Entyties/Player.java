@@ -2,7 +2,7 @@ package project.example.Network.Entyties;
 
 public class Player {
     private String name;
-    private final long id = 0;
+    public int id;
 
     public Player()
     {
@@ -12,7 +12,6 @@ public class Player {
     public Player(String name)
     {
         this.name = name;
-        generateId();
     }
 
     public String getName()
@@ -28,10 +27,5 @@ public class Player {
     @Override
     public String toString() {
         return name;
-    }
-
-    private long generateId()
-    {
-        return id + 1;
     }
 }

@@ -1,5 +1,6 @@
 package project.example.Network.Packets;
 
+import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
 
 public class CreateLobbyPacket {
@@ -9,23 +10,19 @@ public class CreateLobbyPacket {
     public int sizeWorld;
     public boolean isFallBlocks;
     public Player hostPlayer;
-    public boolean isSuccess;
+    public boolean isAllowed;
+    public int id;
 
     public CreateLobbyPacket() { }
 
-    public CreateLobbyPacket(boolean isSuccess)
+    public CreateLobbyPacket(Lobby lobby)
     {
-        this.isSuccess = isSuccess;
-    }
-
-    public CreateLobbyPacket(String lobbyName, int maxPlayers, boolean isPrivate, int sizeWorld, boolean isFallBlocks, Player hostPlayer)
-    {
-        this.lobbyName = lobbyName;
-        this.maxPlayers = maxPlayers;
-        this.isPrivate = isPrivate;
-        this.sizeWorld = sizeWorld;
-        this.isFallBlocks = isFallBlocks;
-        this.hostPlayer = hostPlayer;
+        this.lobbyName = lobby.getLobbyName();
+        this.maxPlayers = lobby.getMaxPlayers();
+        this.isPrivate = lobby.getIsPrivate();
+        this.sizeWorld = lobby.getSizeWorld();
+        this.isFallBlocks = lobby.getIsFallBlocks();
+        this.hostPlayer = lobby.hostPlayer;
     }
     //сделать просмотр статистики //playerinfo
 }

@@ -4,14 +4,13 @@ import java.util.ArrayList;
 
 public class Lobby {
     public Player hostPlayer;
-
+    public int id;
     private String lobbyName;
     private int maxPlayers;
     private boolean isPrivate;
     private int sizeWorld;
     private boolean isFallBlocks;
     private ArrayList<Player> players;
-
     public Lobby()
     {
 
@@ -23,7 +22,12 @@ public class Lobby {
         this.lobbyName = lobbyName;
         this.maxPlayers = maxPlayers;
         this.isPrivate = isPrivate;
+        this.sizeWorld = sizeWorld;
+        this.isFallBlocks = isFallBlocks;
         this.hostPlayer = hostPlayer;
+
+        if (lobbyName == null)
+            this.lobbyName = hostPlayer.getName();
     }
 
     public void joinToLobby(Player player)
@@ -34,6 +38,42 @@ public class Lobby {
     @Override
     public String toString()
     {
-        return lobbyName + " " + maxPlayers + " " + isPrivate + " " + hostPlayer + " " + sizeWorld + " " + isFallBlocks + " " + players.size() + "/4";
+        return lobbyName + " " + isPrivate + " " + hostPlayer + " " + sizeWorld + " " + isFallBlocks + " " + players.size() + "/" + maxPlayers;
+    }
+
+    public String getLobbyName()
+    {
+        return lobbyName;
+    }
+
+    public int getMaxPlayers()
+    {
+        return maxPlayers;
+    }
+
+    public boolean getIsPrivate()
+    {
+        return isPrivate;
+    }
+
+    public int getSizeWorld()
+    {
+        return sizeWorld;
+    }
+
+    public int getQuantityPlayers() { return players.size(); }
+
+    public boolean getIsFallBlocks()
+    {
+        return isFallBlocks;
+    }
+
+    public ArrayList<Player> getPlayers()
+    {
+        return new ArrayList<>(players);
+    }
+
+    public long getId() {
+        return id;
     }
 }
