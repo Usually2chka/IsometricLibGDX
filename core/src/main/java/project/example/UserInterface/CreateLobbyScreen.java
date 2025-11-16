@@ -190,6 +190,7 @@ public class CreateLobbyScreen implements Screen {
                 client.createLobby(lobby, response -> {
                     lobby.id = response;
                 });
+                Player.inCurrentLobby = lobby;
                 game.setScreen(new LobbyScreen(lobby, game, client));
             }
         });

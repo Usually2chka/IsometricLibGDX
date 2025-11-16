@@ -50,11 +50,17 @@ public class GameClient {
             public void received(Connection connection, Object object) {
                 if (object instanceof HandshakePacket)
                     processedHandshakeData((HandshakePacket) object);
-                //if (object instanceof AllLobbiesPacket);
-                    //processedAllLobbyPacket((AllLobbiesPacket) object);
-                if (object instanceof LobbyPacket) {
-                    lobbies.add(((LobbyPacket) object).lobby);
-                }
+                if (object instanceof AllLobbiesPacket)
+                    processedAllLobbyPacket((AllLobbiesPacket) object);
+                //if (object instanceof LobbyPacket) {
+                    //lobbies.add(((LobbyPacket) object).lobby);
+                //}
+            }
+
+            @Override
+            public void disconnected(Connection connection) {
+                Gdx.app.log("Работает?", "" + Player.inCurrentLobby);
+                leaveFromLobby(Player.inCurrentLobby);
             }
         });
 
@@ -82,7 +88,6 @@ public class GameClient {
 
     public void updateClient()//Consumer<Array<Lobby>> onResponse)
     {
-
         client.addListener(new Listener() {
             @Override
             public void received(Connection connection, Object object) {
@@ -97,17 +102,7 @@ public class GameClient {
                         for (Consumer<Array<Lobby>> subscriber : lobbySubscribers)
                             subscriber.accept(lobbies);
                     });
-
-//                    for (int i = 0; i < lb.size - 1; i++) {
-//                        Gdx.app.log("ало", "" + ((AllLobbiesPacket) object).lobbies.get(i));
-//                        if (((AllLobbiesPacket) object).lobbies.get(i) != null) {
-//                            Gdx.app.log("ало", "что-нибудь");
-//                            lobbies.add(((AllLobbiesPacket) object).lobbies.get(i));
-//                        }
-//                    }
-//                    Gdx.app.postRunnable(() -> onResponse.accept(lobbies));
                 }
-                //client.removeListener(this);
             }
         });
     }
@@ -123,7 +118,6 @@ public class GameClient {
                         lobby.id = ((CreateLobbyPacket) object).id;
                         Gdx.app.postRunnable(() -> onResponse.accept(lobby.id));
                     }
-
                 }
                 client.removeListener(this);
             }
@@ -181,6 +175,9 @@ public class GameClient {
     }
     private void processedAllLobbyPacket(AllLobbiesPacket packet)
     {
-
+        lobbies.clear();
+        for (int i = 0; i < packet.lobbies.size(); i++)
+            if (packet.lobbies.get(i) != null)
+                lobbies.add(packet.lobbies.get(i));
     }
 }

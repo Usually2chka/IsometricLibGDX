@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.util.function.Consumer;
 
 import project.example.Network.Entyties.Lobby;
+import project.example.Network.Entyties.Player;
 import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 
@@ -78,8 +79,7 @@ public class MultiplayerScreen implements Screen {
                     if (client.state == GameClient.ClientState.IN_LOBBY)
                     {
                         client.state = GameClient.ClientState.ALLOWED;
-                        Gdx.app.log("", "" + selectLobby.getPlayers().size());
-
+                        Player.inCurrentLobby = selectLobby;
                         game.setScreen(new LobbyScreen(selectLobby, game, client));
                     }
                     else
