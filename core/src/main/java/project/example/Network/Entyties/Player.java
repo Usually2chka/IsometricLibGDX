@@ -3,7 +3,7 @@ package project.example.Network.Entyties;
 public class Player {
     private String name;
     public int id;
-    public static Lobby inCurrentLobby;
+    public int lobbyId;
 
     public Player()
     {

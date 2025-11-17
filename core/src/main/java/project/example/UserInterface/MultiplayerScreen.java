@@ -79,7 +79,7 @@ public class MultiplayerScreen implements Screen {
                     if (client.state == GameClient.ClientState.IN_LOBBY)
                     {
                         client.state = GameClient.ClientState.ALLOWED;
-                        Player.inCurrentLobby = selectLobby;
+                        //Player.inCurrentLobby = selectLobby;
                         game.setScreen(new LobbyScreen(selectLobby, game, client));
                     }
                     else

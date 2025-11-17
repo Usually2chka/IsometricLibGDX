@@ -17,7 +17,6 @@ import project.example.Network.Packets.AllLobbiesPacket;
 import project.example.Network.Packets.CreateLobbyPacket;
 import project.example.Network.Packets.HandshakePacket;
 import project.example.Network.Packets.LeaveFromLobbyPacket;
-import project.example.Network.Packets.LobbyPacket;
 import project.example.Network.Packets.JoinToLobbyPacket;
 
 public class GameClient {
@@ -52,15 +51,6 @@ public class GameClient {
                     processedHandshakeData((HandshakePacket) object);
                 if (object instanceof AllLobbiesPacket)
                     processedAllLobbyPacket((AllLobbiesPacket) object);
-                //if (object instanceof LobbyPacket) {
-                    //lobbies.add(((LobbyPacket) object).lobby);
-                //}
-            }
-
-            @Override
-            public void disconnected(Connection connection) {
-                Gdx.app.log("Работает?", "" + Player.inCurrentLobby);
-                leaveFromLobby(Player.inCurrentLobby);
             }
         });
 
