@@ -49,8 +49,6 @@ public class GameClient {
             public void received(Connection connection, Object object) {
                 if (object instanceof HandshakePacket)
                     processedHandshakeData((HandshakePacket) object);
-                if (object instanceof AllLobbiesPacket)
-                    processedAllLobbyPacket((AllLobbiesPacket) object);
             }
         });
 
@@ -76,7 +74,7 @@ public class GameClient {
         lobbySubscribers.removeValue(listener, true);
     }
 
-    public void updateClient()//Consumer<Array<Lobby>> onResponse)
+    public void updateClient()
     {
         client.addListener(new Listener() {
             @Override
@@ -138,7 +136,6 @@ public class GameClient {
                 if (object instanceof JoinToLobbyPacket) {
                     boolean allowed = ((JoinToLobbyPacket) object).isAllowed;
                     state = allowed ? ClientState.IN_LOBBY : ClientState.CANCELED;
-                    Gdx.app.log("а", "" + allowed);
                     Gdx.app.postRunnable(() -> onResponse.accept(allowed));
                     client.removeListener(this);
                 }
@@ -153,7 +150,9 @@ public class GameClient {
     }
     public void leaveFromLobby(Lobby lobby)
     {
+        lobby.leaveFromLobby(GameClient.player);
         client.sendTCP(new LeaveFromLobbyPacket(lobby));
+        player.lobbyId = -1;
     }
     private void processedHandshakeData(HandshakePacket packet)
     {
@@ -162,12 +161,5 @@ public class GameClient {
             if (packet.lobbies.get(i) != null)
                 lobbies.add(packet.lobbies.get(i));
         player.id = packet.playerId;
-    }
-    private void processedAllLobbyPacket(AllLobbiesPacket packet)
-    {
-        lobbies.clear();
-        for (int i = 0; i < packet.lobbies.size(); i++)
-            if (packet.lobbies.get(i) != null)
-                lobbies.add(packet.lobbies.get(i));
     }
 }

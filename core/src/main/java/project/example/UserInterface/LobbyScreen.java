@@ -7,11 +7,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Consumer;
 
 import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
@@ -19,104 +19,170 @@ import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 
 public class LobbyScreen implements Screen {
+
     private final Stage stage;
-    private ArrayList<Player> players;
     private final GameClient client;
-    private Label infoPlayersLabel;
+    private final Game game;
     private Lobby lobby;
+
+    private ArrayList<Player> players;
+
+    // UI элементы, которые будем обновлять
+    private Label infoPlayersLabel;
+    private Table playerTable;
+    private Label fallLabel;
+    private Label sizeLabel;
+    private Label privateLabel;
+
+    // Кнопки и контейнер для них
+    private TextButton leaveBtn;
+    private TextButton startBtn;
+    private Table buttonTable;
+
+    private Table rootTable;
+
+    private Consumer<Array<Lobby>> lobbyConsumer;
 
     public LobbyScreen(Lobby lobby, Game game, GameClient client) {
         this.client = client;
         this.lobby = lobby;
+        this.game = game;
+
+        this.players = new ArrayList<>(lobby.getPlayers());
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
-        players = lobby.getPlayers();
-        players.add(GameClient.player);
 
-        Table table = new Table();
-        table.setFillParent(true);
-        table.defaults().pad(10);
-        stage.addActor(table);
+        buildUI();
+    }
 
-        Label title;
-        if(lobby.getLobbyName() == null)
-            title = new Label("Room: " + lobby.getLobbyName(), TextureManager.GetInstance().GetSkin());
-        else
-            title = new Label("Room: " + lobby.getLobbyName(), TextureManager.GetInstance().GetSkin());
+    private void buildUI() {
+        rootTable = new Table();
+        rootTable.setFillParent(true);
+        rootTable.defaults().pad(10);
+        stage.addActor(rootTable);
 
+        // === Заголовок ===
+        Label title = new Label("Room: " + lobby.getLobbyName(), TextureManager.GetInstance().GetSkin());
         title.setAlignment(Align.center);
-        table.add(title).colspan(2).center().padBottom(20);
-        table.row();
+        rootTable.add(title).colspan(2).center().padBottom(20);
+        rootTable.row();
 
         // === Список игроков ===
-        infoPlayersLabel = new Label("Players (" + players.size() + "/" + lobby.getMaxPlayers() + "):", TextureManager.GetInstance().GetSkin());
-        table.add(infoPlayersLabel).left().colspan(2);
-        table.row();
+        infoPlayersLabel = new Label("", TextureManager.GetInstance().GetSkin());
+        rootTable.add(infoPlayersLabel).left().colspan(2);
+        rootTable.row();
 
-        Table playerTable = new Table();
-        Map<Player, Label> playerLabel = new HashMap<>();
+        playerTable = new Table();
+        rootTable.add(playerTable).left().colspan(2);
+        rootTable.row();
+
+        // === Настройки комнаты ===
+        fallLabel = new Label("", TextureManager.GetInstance().GetSkin());
+        sizeLabel = new Label("", TextureManager.GetInstance().GetSkin());
+        privateLabel = new Label("", TextureManager.GetInstance().GetSkin());
+
+        rootTable.add(fallLabel).left().colspan(2);
+        rootTable.row();
+        rootTable.add(sizeLabel).left().colspan(2);
+        rootTable.row();
+        rootTable.add(privateLabel).left().colspan(2);
+        rootTable.row();
+
+        // === Кнопки ===
+        leaveBtn = new TextButton("Leave", TextureManager.GetInstance().GetSkin());
+        startBtn = new TextButton("Start", TextureManager.GetInstance().GetSkin());
+
+        // Слушатели кнопок
+        leaveBtn.addListener(event -> {
+            if (leaveBtn.isPressed()) {
+                client.leaveFromLobby(lobby);
+                game.setScreen(new MultiplayerScreen(game, client));
+            }
+            return false;
+        });
+
+        startBtn.addListener(event -> {
+            if (!startBtn.isPressed()) return false;
+            // TODO: отправить команду старта на сервер
+            System.out.println("Start game pressed by host");
+            return true;
+        });
+
+        // Добавляем контейнер кнопок — его будем перестраивать в updateLobbyUI()
+        buttonTable = new Table();
+        rootTable.add(buttonTable).colspan(2).padTop(30);
+        rootTable.row();
+
+        // Первичное заполнение UI
+        updateLobbyUI();
+    }
+
+    private void updateLobbyUI() {
+        // Обновляем список игроков/лейбл
+        infoPlayersLabel.setText("Players (" + players.size() + "/" + lobby.getMaxPlayers() + "):");
+
+        playerTable.clear();
         for (Player p : players) {
             Label playerName = new Label(p.toString(), TextureManager.GetInstance().GetSkin());
             playerTable.add(playerName).left().pad(5);
             playerTable.row();
-            playerLabel.put(p, playerName);
         }
-        table.add(playerTable).left().colspan(2);
-        table.row();
 
-        // === Настройки комнаты ===
-        Label fallLabel = new Label("Fall blocks: " + lobby.getIsFallBlocks(), TextureManager.GetInstance().GetSkin());
-        Label sizeLabel = new Label("World size: " + lobby.getSizeWorld() + "x" + lobby.getSizeWorld(), TextureManager.GetInstance().GetSkin());
-        Label privateLabel = new Label("Private room:  " + lobby.getIsPrivate(), TextureManager.GetInstance().GetSkin());
-        table.add(fallLabel).left().colspan(2);
-        table.row();
-        table.add(sizeLabel).left().colspan(2);
-        table.row();
-        table.add(privateLabel).left().colspan(2);
-        table.row();
+        // Обновляем настройки
+        fallLabel.setText("Fall blocks: " + lobby.getIsFallBlocks());
+        sizeLabel.setText("World size: " + lobby.getSizeWorld() + "x" + lobby.getSizeWorld());
+        privateLabel.setText("Private room: " + lobby.getIsPrivate());
 
-        // === Кнопки ===
-        TextButton leaveBtn = new TextButton("Leave", TextureManager.GetInstance().GetSkin());
-        TextButton startBtn = new TextButton("Start", TextureManager.GetInstance().GetSkin());
-        table.add(leaveBtn).left().padTop(30);
-        if (players.get(0) == GameClient.player) //host lobby
-            table.add(startBtn).right().padTop(30);
+        // Обновляем панель кнопок: Leave всегда слева, Start — только если текущий игрок хост
+        buttonTable.clear();
+        buttonTable.add(leaveBtn).left();
+        boolean isHost = !players.isEmpty() && players.get(0).equals(GameClient.player);
+        if (isHost) {
+            buttonTable.add(startBtn).right();
+        }
+    }
 
-        // === События ===
-        leaveBtn.addListener(event -> {
-            if (leaveBtn.isPressed())
-            {
-                //playerTable.removeActor(playerLabel.get(GameClient.player));
-                //playerLabel.remove(GameClient.player);
-                players.remove(GameClient.player);
-                updateData();
-                game.setScreen(new MultiplayerScreen(game, client));
+    @Override
+    public void show() {
+        lobbyConsumer = updatedLobbies -> {
+            for (Lobby l : updatedLobbies) {
+                if (l.getId() == lobby.getId()) {
+                    this.lobby = l;
+                    this.players = new ArrayList<>(l.getPlayers());
+                    Gdx.app.postRunnable(this::updateLobbyUI);
+                    break;
+                }
             }
+        };
+        client.addLobbyListener(lobbyConsumer);
+    }
 
-            return false;
-        });
-        startBtn.addListener(event -> {
-            if (!startBtn.isPressed()) return false;
-            System.out.println("Start game");
-            return true;
-        });
-    }
-    private void updateData()
-    {
-        client.leaveFromLobby(lobby);
-        //infoPlayersLabel.setText("Players (" + players.size() + "/" + lobby.getMaxPlayers() + "):");
-    }
-    @Override public void show() {}
-    @Override public void render(float delta) {
+    @Override
+    public void render(float delta) {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
     }
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
+
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
+
     @Override public void pause() {}
     @Override public void resume() {}
-    @Override public void hide() {}
-    @Override public void dispose() { stage.dispose(); TextureManager.GetInstance().GetSkin().dispose(); }
+
+    @Override
+    public void hide() {
+        client.removeLobbyListener(lobbyConsumer);
+    }
+
+    @Override
+    public void dispose() {
+        stage.dispose();
+        TextureManager.GetInstance().GetSkin().dispose();
+    }
 }
+

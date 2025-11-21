@@ -2,6 +2,8 @@ package project.example.Network.Entyties;
 
 import java.util.ArrayList;
 
+import project.example.Network.GameClient;
+
 public class Lobby {
     public Player hostPlayer;
     public int id;
@@ -25,7 +27,7 @@ public class Lobby {
         this.sizeWorld = sizeWorld;
         this.isFallBlocks = isFallBlocks;
         this.hostPlayer = hostPlayer;
-
+        players.add(hostPlayer);
         if (lobbyName == null)
             this.lobbyName = hostPlayer.getName();
     }
@@ -33,6 +35,9 @@ public class Lobby {
     public void joinToLobby(Player player)
     {
         players.add(player);
+    }
+    public void leaveFromLobby(Player player) {
+        players.remove(player);
     }
 
     @Override

@@ -79,7 +79,7 @@ public class MultiplayerScreen implements Screen {
                     if (client.state == GameClient.ClientState.IN_LOBBY)
                     {
                         client.state = GameClient.ClientState.ALLOWED;
-                        //Player.inCurrentLobby = selectLobby;
+                        selectLobby.joinToLobby(GameClient.player);
                         game.setScreen(new LobbyScreen(selectLobby, game, client));
                     }
                     else
@@ -152,11 +152,7 @@ public class MultiplayerScreen implements Screen {
         stage.addActor(window);
 
         lobbyConsumer = this::updateLobbies;
-        client.addLobbyListener(lobbyConsumer);//lobbies -> list.setItems(lobbies));
-
-//        client.updateClient(changedLobbies -> {
-//            list.setItems(changedLobbies);
-//        });
+        client.addLobbyListener(lobbyConsumer);
     }
     private void DefineListeners()
     {
