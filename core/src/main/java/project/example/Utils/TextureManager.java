@@ -12,8 +12,6 @@ public class TextureManager implements Disposable {
     private static Skin skin;
     private AssetManager manager;
     private TextureAtlas atlas;
-
-
     private TextureManager()
     {
         skin = new Skin(Gdx.files.internal(Constants.PATH_TO_UI));
@@ -34,10 +32,6 @@ public class TextureManager implements Disposable {
 
     public Skin GetSkin()
     {
-        // Не дай бог кто-то скажет, что я верну ссылку на эту хуйню
-        // Я отвечу - ичо? ебучий skin, разумеется, не cloneable модифицировать не могу
-        // Делать сериализацию ? - делать мне нехуй
-        // Рефлексией? - нахуй сходи, умник, все равно будут использоваться методы геттеры у скина :)
         return skin;
     }
 

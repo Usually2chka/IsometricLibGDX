@@ -8,17 +8,13 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-
-import java.io.IOException;
 
 import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
@@ -87,7 +83,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (client.getConnect())
-                    game.setScreen(new MultiplayerScreen(game, client));
+                    game.setScreen(new MultiplayerScreen(game, client)); //inputName();
                 else {
                     showConnectionErrorDialog();
                 }
@@ -202,5 +198,44 @@ public class MainMenuScreen implements Screen {
         // Настройка внешнего вида
         dialog.setColor(1, 1, 1, 1);
         dialog.setBackground(TextureManager.GetInstance().GetSkin().newDrawable("white", Color.DARK_GRAY));
+    }
+    public void inputName()
+    {
+        Dialog dialog = new Dialog("", TextureManager.GetInstance().GetSkin()) {
+            @Override
+            protected void result(Object object) {
+                if ((Boolean) object) {
+                    // Действия при нажатии OK
+                    String name = ((TextField) getContentTable().getCells().first().getActor()).getText();
+                    if (!name.isEmpty()) {
+                        GameClient.player.setName(name);
+                        //game.setScreen(new MultiplayerScreen(game, client));
+                    }
+                    else
+                        System.out.println("name null");
+                }
+            }
+        };
+
+        TextField textField = new TextField("your nickname?", TextureManager.GetInstance().GetSkin());
+        textField.setScale(2.5f);
+        TextButton cancelButton = new TextButton("CANCEL", TextureManager.GetInstance().GetSkin());
+        cancelButton.getLabel().setFontScale(2.5f);
+
+        TextButton okButton = new TextButton("OK", TextureManager.GetInstance().GetSkin());
+        okButton.getLabel().setFontScale(2.5f);
+
+        dialog.getButtonTable().defaults().space(350);
+        dialog.getContentTable().add(textField);
+        dialog.button(cancelButton, false);
+        dialog.button(okButton, true);
+
+        dialog.setColor(1, 1, 1, 1);
+        dialog.getContentTable().add(textField).width(400).height(80).pad(20);
+        dialog.setBackground(TextureManager.GetInstance().GetSkin().newDrawable("white", Color.DARK_GRAY));
+        dialog.setSize(700, 200);
+
+
+        dialog.show(stage);
     }
 }

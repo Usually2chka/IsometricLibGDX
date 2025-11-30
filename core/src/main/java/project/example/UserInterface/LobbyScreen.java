@@ -3,6 +3,7 @@ package project.example.UserInterface;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -125,6 +126,10 @@ public class LobbyScreen implements Screen {
         playerTable.clear();
         for (Player p : players) {
             Label playerName = new Label(p.toString(), TextureManager.GetInstance().GetSkin());
+            if (p.id == lobby.hostPlayer.id) {
+                playerName.setColor(Color.GOLD);
+                playerName.setText(p.toString() + " <-- leaderRoom");
+            }
             playerTable.add(playerName).left().pad(5);
             playerTable.row();
         }
@@ -137,7 +142,7 @@ public class LobbyScreen implements Screen {
         // Обновляем панель кнопок: Leave всегда слева, Start — только если текущий игрок хост
         buttonTable.clear();
         buttonTable.add(leaveBtn).left();
-        boolean isHost = !players.isEmpty() && players.get(0).equals(GameClient.player);
+        boolean isHost = !players.isEmpty() && (players.get(0).getId() == GameClient.player.id);
         if (isHost) {
             buttonTable.add(startBtn).right();
         }
