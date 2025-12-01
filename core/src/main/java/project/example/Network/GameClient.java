@@ -142,9 +142,9 @@ public class GameClient {
             }
 
         });
-
-        client.sendTCP(new LobbyPacket());
     }
+
+    public void notifyServerStartGame() { client.sendTCP(new LobbyPacket()); }
 
     public void connectToLobby(Lobby lobby, Consumer<Boolean> onResponse)
     {

@@ -106,11 +106,8 @@ public class LobbyScreen implements Screen {
 
         startBtn.addListener(event -> {
             if (startBtn.isPressed() && players.size() == lobby.getMaxPlayers())
-            {
-                client.startGame(startLobby -> {
-                   Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(new SpriteBatch(), game)));
-                });
-            }
+                client.notifyServerStartGame();
+
 
             return false;
         });
@@ -165,16 +162,11 @@ public class LobbyScreen implements Screen {
                 }
             }
         };
-//        startLobbyListener = startLobby -> {
-//          for (Lobby l : startLobby)
-//              if (l.getId() == lobby.getId()) {
-//                  game.setScreen(new GameScreen(new SpriteBatch(), game));
-//                  break;
-//              }
-//        };
-//
-//        client.addLobbyListener(startLobbyListener);
+
         client.addLobbyListener(lobbyConsumer);
+        client.startGame(startLobby -> {
+            Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(new SpriteBatch(), game)));
+        });
     }
 
     @Override
