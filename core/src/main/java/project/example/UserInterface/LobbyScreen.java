@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+import project.example.Game.GameScreen;
 import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
 import project.example.Network.GameClient;
@@ -39,11 +41,10 @@ public class LobbyScreen implements Screen {
     private TextButton leaveBtn;
     private TextButton startBtn;
     private Table buttonTable;
-
     private Table rootTable;
 
     private Consumer<Array<Lobby>> lobbyConsumer;
-
+    private Consumer<Boolean> startLobby;
     public LobbyScreen(Lobby lobby, Game game, GameClient client) {
         this.client = client;
         this.lobby = lobby;
@@ -104,10 +105,14 @@ public class LobbyScreen implements Screen {
         });
 
         startBtn.addListener(event -> {
-            if (!startBtn.isPressed()) return false;
-            // TODO: отправить команду старта на сервер
-            System.out.println("Start game pressed by host");
-            return true;
+            if (startBtn.isPressed() && players.size() == lobby.getMaxPlayers())
+            {
+                client.startGame(startLobby -> {
+                   Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(new SpriteBatch(), game)));
+                });
+            }
+
+            return false;
         });
 
         // Добавляем контейнер кнопок — его будем перестраивать в updateLobbyUI()
@@ -160,6 +165,15 @@ public class LobbyScreen implements Screen {
                 }
             }
         };
+//        startLobbyListener = startLobby -> {
+//          for (Lobby l : startLobby)
+//              if (l.getId() == lobby.getId()) {
+//                  game.setScreen(new GameScreen(new SpriteBatch(), game));
+//                  break;
+//              }
+//        };
+//
+//        client.addLobbyListener(startLobbyListener);
         client.addLobbyListener(lobbyConsumer);
     }
 

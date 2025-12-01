@@ -4,7 +4,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -23,7 +22,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.util.function.Consumer;
 
 import project.example.Network.Entyties.Lobby;
-import project.example.Network.Entyties.Player;
 import project.example.Network.GameClient;
 import project.example.Utils.TextureManager;
 

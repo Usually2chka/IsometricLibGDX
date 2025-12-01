@@ -78,7 +78,7 @@ public class Lobby {
         return new ArrayList<>(players);
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 }

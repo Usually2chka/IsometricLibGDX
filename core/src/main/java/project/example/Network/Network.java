@@ -1,7 +1,6 @@
 package project.example.Network;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.EndPoint;
 
 import java.util.ArrayList;
@@ -10,6 +9,7 @@ import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
 import project.example.Network.Packets.AllLobbiesPacket;
 import project.example.Network.Packets.CreateLobbyPacket;
+import project.example.Network.Packets.GamePacket;
 import project.example.Network.Packets.HandshakePacket;
 import project.example.Network.Packets.JoinToLobbyPacket;
 import project.example.Network.Packets.LeaveFromLobbyPacket;
@@ -30,5 +30,6 @@ public class Network {
         kryo.register(JoinToLobbyPacket.class);
         kryo.register(LeaveFromLobbyPacket.class);
         kryo.register(HandshakePacket.class);
+        kryo.register(GamePacket.class);
     }
 }

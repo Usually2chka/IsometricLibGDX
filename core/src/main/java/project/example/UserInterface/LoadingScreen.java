@@ -2,7 +2,6 @@ package project.example.UserInterface;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.io.IOException;
 
@@ -11,11 +10,9 @@ import project.example.Utils.TextureManager;
 
 public class LoadingScreen implements Screen {
     private Game game;
-    private SpriteBatch spriteBatch;
     GameClient client;
-    public LoadingScreen(SpriteBatch spriteBatch, Game game)
+    public LoadingScreen(Game game)
     {
-        this.spriteBatch = spriteBatch;
         this.game = game;
 
     }
@@ -29,7 +26,6 @@ public class LoadingScreen implements Screen {
         if (TextureManager.GetInstance().Update()) {
             TextureManager.GetInstance().FinishLoading();
             game.setScreen(new MainMenuScreen(game, client));
-            //game.setScreen(new GameScreen(spriteBatch, game));
         }
         else {
             //progress bar

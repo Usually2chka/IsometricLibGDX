@@ -10,13 +10,11 @@ public class Main extends Game {
     public static final int VIEW_WIDTH = 1500;
     public static final int VIEW_HEIGHT = 1000;
     public static final int PIXEL_PER_METER = 100;
-    private SpriteBatch spriteBatch;
     @Override
     public void create() {
-        spriteBatch = new SpriteBatch();
         //this.setScreen(new MainMenuScreen(this));
         TextureManager.GetInstance().Init();
-        this.setScreen(new LoadingScreen(spriteBatch, this));
+        this.setScreen(new LoadingScreen(this));
         //this.setScreen(new GameScreen(spriteBatch));
     }
 }

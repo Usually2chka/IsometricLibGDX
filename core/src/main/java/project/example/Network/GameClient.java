@@ -15,9 +15,11 @@ import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
 import project.example.Network.Packets.AllLobbiesPacket;
 import project.example.Network.Packets.CreateLobbyPacket;
+import project.example.Network.Packets.GamePacket;
 import project.example.Network.Packets.HandshakePacket;
 import project.example.Network.Packets.LeaveFromLobbyPacket;
 import project.example.Network.Packets.JoinToLobbyPacket;
+import project.example.Network.Packets.LobbyPacket;
 
 public class GameClient {
     public enum ClientState {
@@ -25,6 +27,7 @@ public class GameClient {
         DISCONNECTED,
         WAITING_RESPONSE,
         IN_LOBBY,
+        IN_GAME,
         ALLOWED,
         CANCELED
     }
@@ -55,7 +58,7 @@ public class GameClient {
         client.start();
 
         try {
-            client.connect(2000, "10.0.2.2", PORT); // localhost
+            client.connect(2000, "10.0.2.2", PORT); // localhost //to connect test server "26.135.168.236"
             if (client.isConnected())
                 state = ClientState.CONNECTED;
         } catch (IOException e) {
@@ -125,7 +128,22 @@ public class GameClient {
     }
 
     public void tryAgain() throws IOException {
-        client.connect(1000, "10.0.2.2", PORT); // localhost
+        client.connect(1000, "10.0.2.2", PORT); // localhost //to connect test server "26.135.168.236"
+    }
+
+    public void startGame(Consumer<Boolean> consumer)
+    {
+        client.addListener(new Listener() {
+            @Override
+            public void received(Connection connection, Object object) {
+                if (object instanceof LobbyPacket)
+                    consumer.accept(true);
+                client.removeListener(this);
+            }
+
+        });
+
+        client.sendTCP(new LobbyPacket());
     }
 
     public void connectToLobby(Lobby lobby, Consumer<Boolean> onResponse)
