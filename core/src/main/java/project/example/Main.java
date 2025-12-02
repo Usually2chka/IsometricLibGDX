@@ -3,6 +3,7 @@ package project.example;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import project.example.Game.GameScreen;
 import project.example.UserInterface.LoadingScreen;
 import project.example.Utils.TextureManager;
 
@@ -15,6 +16,6 @@ public class Main extends Game {
         //this.setScreen(new MainMenuScreen(this));
         TextureManager.GetInstance().Init();
         this.setScreen(new LoadingScreen(this));
-        //this.setScreen(new GameScreen(spriteBatch));
+        //this.setScreen(new GameScreen(new SpriteBatch(), this));
     }
 }

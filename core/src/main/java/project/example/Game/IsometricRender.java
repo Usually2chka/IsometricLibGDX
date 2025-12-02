@@ -30,7 +30,6 @@ public class IsometricRender extends Stage {
                            TileMap.GetMap()[row][col].GetRectangle().height);
                 batch.setColor(Color.WHITE); // сброс цвета
             }
-
     }
 
     public void Debuging()

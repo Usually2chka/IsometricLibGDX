@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
+import project.example.Game.Entitys.Unit;
 import project.example.Main;
 import project.example.Utils.InputSystem;
 
@@ -20,6 +22,7 @@ public class GameScreen implements Screen {
     private InputSystem input;
     private GestureDetector detector;
     private World world;
+    private Box2DDebugRenderer debug = new Box2DDebugRenderer();
 
     private TileMap tileMap; // dont delete this
 
@@ -32,11 +35,11 @@ public class GameScreen implements Screen {
         render = new IsometricRender();
         input = new InputSystem(camera);
         detector = new GestureDetector(input);
-        tileMap = new TileMap();
+        tileMap = new TileMap(world);
     }
     @Override
     public void show() {
-        camera.position.set(Main.VIEW_WIDTH / 2, Main.VIEW_HEIGHT / 2, 5);
+        camera.position.set(0, Main.VIEW_HEIGHT / 2, 5);
         Gdx.input.setInputProcessor(detector);
 
     }
@@ -56,8 +59,9 @@ public class GameScreen implements Screen {
         world.step(1/60f, 6, 2);
         //render.Debuging();
         render.Render(batch);
-
         batch.end();
+
+        debug.render(world, camera.combined);
 
     }
 

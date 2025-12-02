@@ -136,23 +136,11 @@ public class GameClient {
         client.addListener(new Listener() {
             @Override
             public void received(Connection connection, Object object) {
-                if (object != null) {
-                    System.out.println("CLIENT LEADER RECEIVED CLASS: " + object.getClass().getName());
-                } else {
-                    System.out.println("CLIENT LEADER RECEIVED: NULL OBJECT");
-                }
-                // ------------------------------------------
-
-                if (object instanceof LobbyPacket) { // Используем ваше предположение о пакете
+                if (object instanceof LobbyPacket) {
                     System.out.println("fkj");
                     client.removeListener(this);
                     consumer.accept(true);
                 }
-//                if (object instanceof LobbyPacket) {
-//                    System.out.println("fkj");
-//                    client.removeListener(this);
-//                    consumer.accept(true);
-//                }
             }
         });
     }
