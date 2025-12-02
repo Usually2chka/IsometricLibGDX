@@ -105,8 +105,10 @@ public class LobbyScreen implements Screen {
         });
 
         startBtn.addListener(event -> {
-            if (startBtn.isPressed() && players.size() == lobby.getMaxPlayers())
-                client.notifyServerStartGame();
+            if (startBtn.isPressed() && players.size() == lobby.getMaxPlayers()) {
+                client.notifyServerStartGame(lobby.id);
+                game.setScreen(new GameScreen(new SpriteBatch(), game));
+            }
 
 
             return false;
