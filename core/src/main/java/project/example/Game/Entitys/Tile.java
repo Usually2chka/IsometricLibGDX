@@ -17,7 +17,6 @@ public class Tile implements Disposable, Cloneable {
     protected TextureRegion texture;
     protected String textureName;
     protected boolean isTouched;
-    public static final float PPM = 1;
     public Body body;
 
     public Tile(String textureName, float x, float y, World world)
@@ -81,18 +80,20 @@ public class Tile implements Disposable, Cloneable {
         bodyDef.type = BodyDef.BodyType.StaticBody;
         // Позиция в метрах Box2D (центр прямоугольника)
         bodyDef.position.set(
-            (rectangle.x + rectangle.width / 2) / PPM,
-            (rectangle.y + rectangle.height / 2) / PPM
+            (rectangle.x + rectangle.width / 2),
+            (rectangle.y + rectangle.height / 2)+16
         );
 
         // 2. Создаем тело в мире
         this.body = world.createBody(bodyDef);
 
+        //body.setTransform(body.getPosition(), (float) Math.toRadians(65));
+
         // 3. Создаем форму-прямоугольник (размеры задаются как половины ширины/высоты)
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(
-            (rectangle.width / 2) / PPM,
-            (rectangle.height / 2) / PPM
+            (rectangle.width / 2)-24,
+            (rectangle.height / 2)-24
         );
 
         // 4. Создаем фикстуру и прикрепляем к телу

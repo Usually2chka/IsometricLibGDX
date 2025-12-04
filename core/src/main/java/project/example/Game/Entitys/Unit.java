@@ -1,8 +1,12 @@
 package project.example.Game.Entitys;
 
+import static project.example.Utils.Constants.TILE_HEIGHT;
+import static project.example.Utils.Constants.TILE_WIDTH;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -22,7 +26,7 @@ public class Unit {
     protected Animation<TextureRegion> animation;
 
     public Unit(int health, int armor, int damage,
-                int positionX, int positionY)//, Texture texture)
+                int positionX, int positionY, World world)//, Texture texture)
     {
         this.health = health;
         this.armor = armor;
@@ -31,6 +35,8 @@ public class Unit {
         this.positionY = positionY;
         //this.texture = texture;
         isHighLight = false;
+
+        defineUnit(world);
     }
 
     protected Animation<TextureRegion> GetAnimation() {return null;} //TODO!
@@ -54,21 +60,21 @@ public class Unit {
         this.health -= damage;
     }
 
-    private void defineUnit(int positionX, int positionY, World world) {
+    private void defineUnit(World world) {
 
         // --- 2. Определение Кинематического Тела (The Body) ---
         BodyDef bodyDef = new BodyDef();
         // KinematicBody: на него не действует гравитация, но он взаимодействует
         // с другими телами. Его позицию и скорость мы контролируем вручную.
         bodyDef.type = BodyDef.BodyType.KinematicBody;
-        bodyDef.position.set(positionX, positionY);
+        bodyDef.position.set(this.positionX, this.positionY);
 
         Body body =  world.createBody(bodyDef);
 
         // --- 3. Определение Формы Коллайдера (The Shape) ---
         PolygonShape squareShape = new PolygonShape();
         // setAsBox принимает ПОЛУ-ширину и ПОЛУ-высоту
-        squareShape.setAsBox(64, 64);
+        squareShape.setAsBox(TILE_WIDTH / 4, TILE_HEIGHT / 4);
 
         // --- 4. Определение Физических Свойств (The Fixture) ---
         FixtureDef fixtureDef = new FixtureDef();
@@ -85,4 +91,5 @@ public class Unit {
         squareShape.dispose();
 
     }
+
 }

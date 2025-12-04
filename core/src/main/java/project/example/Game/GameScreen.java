@@ -23,6 +23,7 @@ public class GameScreen implements Screen {
     private GestureDetector detector;
     private World world;
     private Box2DDebugRenderer debug = new Box2DDebugRenderer();
+    private Unit unit;
 
     private TileMap tileMap; // dont delete this
 
@@ -36,6 +37,7 @@ public class GameScreen implements Screen {
         input = new InputSystem(camera);
         detector = new GestureDetector(input);
         tileMap = new TileMap(world);
+        unit = new Unit(0, 0, 0, 32, 48, world);
     }
     @Override
     public void show() {
@@ -59,8 +61,11 @@ public class GameScreen implements Screen {
         world.step(1/60f, 6, 2);
         //render.Debuging();
         render.Render(batch);
+
         batch.end();
 
+
+        debug.SHAPE_STATIC.set(1 , 0, 1, 1);
         debug.render(world, camera.combined);
 
     }
