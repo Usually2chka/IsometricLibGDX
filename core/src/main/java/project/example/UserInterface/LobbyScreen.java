@@ -106,8 +106,8 @@ public class LobbyScreen implements Screen {
 
         startBtn.addListener(event -> {
             if (startBtn.isPressed() && players.size() == lobby.getMaxPlayers()) {
-                client.notifyServerStartGame(lobby.id);
-                game.setScreen(new GameScreen(new SpriteBatch(), game));
+                client.notifyServerStartGame(lobby);
+                game.setScreen(new GameScreen(game, new SpriteBatch(),  client));
             }
 
 
@@ -167,7 +167,7 @@ public class LobbyScreen implements Screen {
 
         client.addLobbyListener(lobbyConsumer);
         client.startGame(startLobby -> {
-            Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(new SpriteBatch(), game)));
+            Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game,new SpriteBatch(), client)));
         });
     }
 

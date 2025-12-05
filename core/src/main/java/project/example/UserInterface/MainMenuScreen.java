@@ -77,8 +77,8 @@ public class MainMenuScreen implements Screen {
         singlePlayerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                //game.setScreen(new SingleplayerScreen(game));
-                game.setScreen(new GameScreen(new SpriteBatch(), null));
+                game.setScreen(new SingleplayerScreen(game, new SpriteBatch()));
+                //game.setScreen(new GameScreen(game, new SpriteBatch(),  client));
             }
         });
 

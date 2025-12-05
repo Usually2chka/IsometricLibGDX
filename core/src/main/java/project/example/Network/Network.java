@@ -9,7 +9,7 @@ import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
 import project.example.Network.Packets.AllLobbiesPacket;
 import project.example.Network.Packets.CreateLobbyPacket;
-import project.example.Network.Packets.GamePacket;
+import project.example.Network.Packets.GameStatePacket;
 import project.example.Network.Packets.HandshakePacket;
 import project.example.Network.Packets.JoinToLobbyPacket;
 import project.example.Network.Packets.LeaveFromLobbyPacket;
@@ -30,6 +30,6 @@ public class Network {
         kryo.register(JoinToLobbyPacket.class);
         kryo.register(LeaveFromLobbyPacket.class);
         kryo.register(HandshakePacket.class);
-        kryo.register(GamePacket.class);
+        kryo.register(GameStatePacket.class);
     }
 }
