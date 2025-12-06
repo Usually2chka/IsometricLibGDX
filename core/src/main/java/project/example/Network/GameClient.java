@@ -36,6 +36,7 @@ public class GameClient {
     private Array<Lobby> lobbies;
     public final static Player player = new Player("Player");
     private final Array<Consumer<Array<Lobby>>> lobbySubscribers = new Array<>();
+    private Consumer<GameStatePacket> gameStatePacketConsumer;
     public GameClient() {
         client = new Client();
         lobbies = new Array<>();
@@ -52,6 +53,8 @@ public class GameClient {
             public void received(Connection connection, Object object) {
                 if (object instanceof HandshakePacket)
                     processedHandshakeData((HandshakePacket) object);
+                if (object instanceof GameStatePacket)
+                    Gdx.app.postRunnable(() -> gameStatePacketConsumer.accept((GameStatePacket) object));
             }
         });
 
@@ -180,16 +183,7 @@ public class GameClient {
         client.sendTCP(packet);
     }
     public void gameStateListener(Consumer<GameStatePacket> onResponse) {
-        client.addListener(new Listener() {
-            @Override
-            public void received(Connection connection, Object object) {
-                if (object instanceof GameStatePacket)
-                {
-                    GameStatePacket gameState = (GameStatePacket) object;
-                    Gdx.app.postRunnable(() -> onResponse.accept(gameState));
-                }
-            }
-        });
+        this.gameStatePacketConsumer = onResponse;
     }
     private void processedHandshakeData(HandshakePacket packet)
     {

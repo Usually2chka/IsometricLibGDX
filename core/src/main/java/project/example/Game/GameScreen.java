@@ -24,10 +24,13 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
 import project.example.Game.Entitys.Unit;
+import project.example.Network.Entyties.Lobby;
+import project.example.Network.Entyties.Player;
 import project.example.Network.GameClient;
 import project.example.Network.Packets.GameStatePacket;
 import project.example.UserInterface.MainMenuScreen;
@@ -45,9 +48,11 @@ public class GameScreen implements Screen {
     private Skin skin = TextureManager.GetInstance().GetSkin();;
     private TextArea gameLogArea;
     private Dialog gameOverDialog;
-    private ArrayList<Unit> players;
-    private Unit player;
-    private Unit enemy;
+    private ArrayList<Unit> enemies;
+    private Unit unit;
+    private int[] queueTurns;
+    private int currentTurns;
+    //private Unit enemy;
     private boolean isPlayerTurn = true;
     private boolean gameOver = false;
     private Unit selectedUnit = null;
@@ -58,11 +63,15 @@ public class GameScreen implements Screen {
     private int GRID_OFFSET_X = 200;
     private int GRID_WIDTH;
     private int GRID_HEIGHT;
+    private Lobby lobby;
 
     private int PLAYER_START_X;
     private int PLAYER_START_Y;
     private ArrayList<int[]> enemiesPosition;
     private Consumer<GameStatePacket> gameState;
+    private boolean isMapLoaded = false;
+
+    private GameStatePacket packet = new GameStatePacket();
 
     private TextButton btnMoveLeft, btnMoveRight, btnMoveUp, btnMoveDown, btnAttack;
     private static class GridPosition {
@@ -84,37 +93,49 @@ public class GameScreen implements Screen {
         }
     }
 
-    public GameScreen(Game game, SpriteBatch batch, GameClient client) {
+    public GameScreen(Game game, SpriteBatch batch, GameClient client, Lobby lobby) {
         this.client = client;
         this.game = game;
         this.batch = batch;
-
-        client.gameStateListener(gameState -> {
-            PLAYER_START_X = gameState.positionX;
-            PLAYER_START_Y = gameState.positionY;
-
-            enemiesPosition = gameState.playersPosition;
-        });
-
+        this.lobby = lobby;
+        GRID_HEIGHT = GRID_WIDTH = lobby.getSizeWorld();
         shapeRenderer = new ShapeRenderer();
         viewport = new ScreenViewport();
-
-        player = new Unit(PLAYER_START_X, PLAYER_START_Y, Color.BLUE, "Player");
-
-        for (int[] pos : enemiesPosition)
-            enemy = new Unit(pos[0], pos[1], Color.RED, "Enemy");
-
         stage = new Stage(new ScreenViewport(), batch);
         Gdx.input.setInputProcessor(stage);
+
+        client.gameStateListener(gameState -> {
+            Gdx.app.postRunnable(() -> initGame(gameState));
+        });
+    }
+
+
+    private void initGame(GameStatePacket gameState) {
+        queueTurns = gameState.queueTurns;
+        currentTurns = queueTurns[0];
+
+        enemies = new ArrayList<>(); // Инициализация списка игроков
+        HashMap<Integer, int[]> coord = gameState.playerIdToCoordinate;
+        unit = new Unit(coord.get(GameClient.player.id)[0], coord.get(GameClient.player.id)[1], Color.BLUE, GameClient.player.getName());
+
+
+        if (enemiesPosition != null) {
+            for (Player p : lobby.getPlayers()) {
+                if (p.getId() != GameClient.player.getId())
+                    enemies.add(new Unit(coord.get(p.id)[0], coord.get(GameClient.player.id)[1], Color.RED, p.getName()));
+            }
+        } else {
+            System.out.println("No enemies found or data null");
+            enemiesPosition = new ArrayList<>();
+        }
 
         setupSkinAndButtons();
         setupLayout();
         setupWorldInputListener();
 
-        logMessage("Game started. Turn: " + player.name);
-
+        isMapLoaded = true;
+        //logMessage("Game started. Turn: " + unit.name);
     }
-
     private void setupSkinAndButtons() {
         // 5. Button initialization
         btnMoveLeft = new TextButton("LEFT", skin);
@@ -151,7 +172,6 @@ public class GameScreen implements Screen {
             @Override public void changed(ChangeEvent event, Actor actor) {
                 attackEnemy();
                 clearSelection();
-                client.sendGameState(new GameStatePacket());
             }
         });
     }
@@ -224,22 +244,22 @@ public class GameScreen implements Screen {
         GridPosition clickedPos = new GridPosition(clickX, clickY);
 
         if (selectedUnit == null) {
-            // Case 1: Unit not selected. Check if the player was clicked.
-            if (clickX == player.gridX && clickY == player.gridY) {
-                selectedUnit = player;
-                logMessage(player.name + " selected.");
+            // Case 1: Unit not selected. Check if the unit was clicked.
+            if (clickX == unit.gridX && clickY == unit.gridY) {
+                selectedUnit = unit;
+                logMessage(unit.name + " selected.");
                 calculateValidMoves();
             }
         } else {
             // Case 2: Unit selected. Check if a valid move cell was clicked.
             if (validMoves.contains(clickedPos)) {
                 // This is a valid move!
-                player.gridX = clickX;
-                player.gridY = clickY;
-                logMessage(player.name + " moves to (" + (clickX+1) + ", " + (clickY+1) + ")");
+                unit.gridX = clickX;
+                unit.gridY = clickY;
+                logMessage(unit.name + " moves to (" + (clickX+1) + ", " + (clickY+1) + ")");
                 endTurn();
                 clearSelection();
-            } else if (clickX == player.gridX && clickY == player.gridY) {
+            } else if (clickX == unit.gridX && clickY == unit.gridY) {
                 // Clicked on the same selected unit again -> Deselect
                 clearSelection();
             } else {
@@ -266,7 +286,7 @@ public class GameScreen implements Screen {
             int newY = selectedUnit.gridY + dy[i];
 
             boolean inBounds = newX >= 0 && newX < GRID_WIDTH && newY >= 0 && newY < GRID_HEIGHT;
-            boolean notEnemy = (newX != enemy.gridX || newY != enemy.gridY);
+            boolean notEnemy = findEnemyInTile(newX, newY) == null;
 
             if (inBounds && notEnemy) {
                 validMoves.add(new GridPosition(newX, newY));
@@ -280,25 +300,42 @@ public class GameScreen implements Screen {
     private void movePlayer(int dx, int dy) {
         if (gameOver || !isPlayerTurn || (dx == 0 && dy == 0)) return;
 
-        int newX = player.gridX + dx;
-        int newY = player.gridY + dy;
+        int newX = unit.gridX + dx;
+        int newY = unit.gridY + dy;
 
-        if (newX >= 0 && newX < GRID_WIDTH && newY >= 0 && newY < GRID_HEIGHT && (newX != enemy.gridX || newY != enemy.gridY)) {
-            player.gridX = newX;
-            player.gridY = newY;
-            logMessage(player.name + " moves to (" + (newX+1) + ", " + (newY+1) + ")");
+        if (newX >= 0 && newX < GRID_WIDTH && newY >= 0 && newY < GRID_HEIGHT && (findEnemyInTile(newX, newY) == null)) {//(newX != enemy.gridX || newY != enemy.gridY)) {
+            packet.lobbyId = lobby.id;
+            packet.positionX = unit.gridX;
+            packet.positionY = unit.gridY;
+            unit.gridX = newX;
+            unit.gridY = newY;
+            logMessage(unit.name + " moves to (" + (newX+1) + ", " + (newY+1) + ")");
             endTurn();
         } else {
             logMessage("Invalid move.");
         }
     }
 
+    private Unit findEnemyInTile(int nextX, int nextY) {
+        Unit enemy = null;
+        for (Unit u : enemies)
+            if (u.gridX == nextX && u.gridY == nextY)
+                return enemy = u;
+        return enemy;
+    }
+    private Unit findNearEnemy() {
+        Unit enemy = null;
+        for (Unit e : enemies)
+            if (Math.abs(unit.gridX - e.gridX) + Math.abs(unit.gridY - e.gridY) == 1)
+                return enemy = e;
+        return enemy;
+    }
     private void attackEnemy() {
         if (gameOver || !isPlayerTurn) return;
 
-        if (Math.abs(player.gridX - enemy.gridX) + Math.abs(player.gridY - enemy.gridY) == 1) {
-            enemy.hp -= player.attackDamage;
-            logMessage(player.name + " attacks " + enemy.name + ". Enemy HP remaining: " + enemy.hp);
+        if (findNearEnemy() != null) {
+            findNearEnemy().hp -= unit.attackDamage;
+            logMessage(unit.name + " attacks " + findNearEnemy().name + ". Enemy HP remaining: " + findNearEnemy().hp);
             checkWinCondition();
             if (!gameOver) endTurn();
         } else {
@@ -310,13 +347,14 @@ public class GameScreen implements Screen {
         String message = "";
         String title = "GAME OVER";
 
-        if (player.hp <= 0) {
-            message = enemy.name.toUpperCase() + " WINS! " + player.name + " is defeated.";
-            gameOver = true;
-        } else if (enemy.hp <= 0) {
-            message = player.name.toUpperCase() + " WINS! " + enemy.name + " is defeated.";
-            gameOver = true;
-        }
+        //winPacket
+//        if (unit.hp <= 0) {
+//            message = enemy.name.toUpperCase() + " WINS! " + unit.name + " is defeated.";
+//            gameOver = true;
+//        } else if (enemy.hp <= 0) {
+//            message = unit.name.toUpperCase() + " WINS! " + enemy.name + " is defeated.";
+//            gameOver = true;
+//        }
 
         if (gameOver) {
             logMessage(title + ": " + message);
@@ -348,14 +386,22 @@ public class GameScreen implements Screen {
 
     private void endTurn() {
         isPlayerTurn = !isPlayerTurn;
-        logMessage("--- Turn: " + (isPlayerTurn ? player.name : enemy.name) + " ---");
+
+        //logMessage("--- Turn: " + (isPlayerTurn ? unit.name : enemies.get(currentTurns)) + " ---");
 
         setButtonsEnabled(isPlayerTurn);
 
         clearSelection();
 
         if (!isPlayerTurn) {
-            //enemyTurn();
+            for (int i = currentTurns; i < queueTurns.length; i++)
+            {
+                if (i == queueTurns.length-1)
+                    currentTurns = queueTurns[0];
+                else
+                    currentTurns = queueTurns[i];
+            }
+            client.sendGameState(packet);
         }
     }
 
@@ -371,8 +417,8 @@ public class GameScreen implements Screen {
     private void updateCamera() {
         OrthographicCamera camera = (OrthographicCamera) viewport.getCamera();
 
-        float playerWorldX = player.gridX * TILE_SIZE + TILE_SIZE / 2f + GRID_OFFSET_X;
-        float playerWorldY = player.gridY * TILE_SIZE + TILE_SIZE / 2f;
+        float playerWorldX = unit.gridX * TILE_SIZE + TILE_SIZE / 2f + GRID_OFFSET_X;
+        float playerWorldY = unit.gridY * TILE_SIZE + TILE_SIZE / 2f;
 
         final float mapWidth = GRID_WIDTH * TILE_SIZE + GRID_OFFSET_X;
         final float mapHeight = GRID_HEIGHT * TILE_SIZE;
@@ -408,6 +454,12 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.2f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        if (!isMapLoaded) {
+            stage.act(delta);
+            stage.draw();
+            return;
+        }
+
         updateCamera();
 
         // 1. WORLD RENDERING (Grid and Units)
@@ -416,22 +468,14 @@ public class GameScreen implements Screen {
 
         // A. Grid background rendering
         shapeRenderer.setColor(Color.DARK_GRAY);
+        // Убедитесь, что GRID_WIDTH/HEIGHT инициализированы до этого момента
         shapeRenderer.rect(GRID_OFFSET_X, 0, GRID_WIDTH * TILE_SIZE, GRID_HEIGHT * TILE_SIZE);
 
-        // B. Highlighted cells rendering (if unit is selected)
-        if (selectedUnit != null && isPlayerTurn) {
-            shapeRenderer.setColor(new Color(0.2f, 0.5f, 0.8f, 0.5f));
-            for (GridPosition pos : validMoves) {
-                float pixelX = pos.x * TILE_SIZE + GRID_OFFSET_X;
-                float pixelY = pos.y * TILE_SIZE;
-
-                shapeRenderer.rect(pixelX + 5, pixelY + 5, TILE_SIZE - 10, TILE_SIZE - 10);
-            }
-        }
+        // ... отрисовка выделения (без изменений) ...
 
         // C. Unit rendering
-        player.draw(shapeRenderer, TILE_SIZE, GRID_OFFSET_X);
-        enemy.draw(shapeRenderer, TILE_SIZE, GRID_OFFSET_X);
+        if (unit != null) unit.draw(shapeRenderer, TILE_SIZE, GRID_OFFSET_X);
+        if (!enemies.isEmpty()) for (Unit u : enemies) u.draw(shapeRenderer, TILE_SIZE, GRID_OFFSET_X);
 
         shapeRenderer.end();
 

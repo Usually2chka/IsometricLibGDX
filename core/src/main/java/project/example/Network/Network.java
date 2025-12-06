@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
@@ -31,5 +32,7 @@ public class Network {
         kryo.register(LeaveFromLobbyPacket.class);
         kryo.register(HandshakePacket.class);
         kryo.register(GameStatePacket.class);
+        kryo.register(int[].class);
+        kryo.register(HashMap.class);
     }
 }

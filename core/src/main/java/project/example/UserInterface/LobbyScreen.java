@@ -19,6 +19,7 @@ import project.example.Game.GameScreen;
 import project.example.Network.Entyties.Lobby;
 import project.example.Network.Entyties.Player;
 import project.example.Network.GameClient;
+import project.example.Network.Packets.JoinToLobbyPacket;
 import project.example.Utils.TextureManager;
 
 public class LobbyScreen implements Screen {
@@ -107,7 +108,7 @@ public class LobbyScreen implements Screen {
         startBtn.addListener(event -> {
             if (startBtn.isPressed() && players.size() == lobby.getMaxPlayers()) {
                 client.notifyServerStartGame(lobby);
-                game.setScreen(new GameScreen(game, new SpriteBatch(),  client));
+                game.setScreen(new GameScreen(game, new SpriteBatch(), client, lobby));
             }
 
 
@@ -167,7 +168,7 @@ public class LobbyScreen implements Screen {
 
         client.addLobbyListener(lobbyConsumer);
         client.startGame(startLobby -> {
-            Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game,new SpriteBatch(), client)));
+            Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game,new SpriteBatch(), client, lobby)));
         });
     }
 
