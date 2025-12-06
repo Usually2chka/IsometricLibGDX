@@ -48,12 +48,12 @@ public class GameScreen implements Screen {
     private Skin skin = TextureManager.GetInstance().GetSkin();;
     private TextArea gameLogArea;
     private Dialog gameOverDialog;
-    private ArrayList<Unit> enemies;
+    private HashMap<Integer, Unit> enemies;
     private Unit unit;
     private int[] queueTurns;
     private int currentTurns;
+    private boolean isPlayerTurn;
     //private Unit enemy;
-    private boolean isPlayerTurn = true;
     private boolean gameOver = false;
     private Unit selectedUnit = null;
     private List<GridPosition> validMoves = new ArrayList<>();
@@ -70,7 +70,8 @@ public class GameScreen implements Screen {
     private ArrayList<int[]> enemiesPosition;
     private Consumer<GameStatePacket> gameState;
     private boolean isMapLoaded = false;
-
+    private int quantityPacket = 0;
+    private HashMap<Integer, int[]> coord;
     private GameStatePacket packet = new GameStatePacket();
 
     private TextButton btnMoveLeft, btnMoveRight, btnMoveUp, btnMoveDown, btnAttack;
@@ -109,24 +110,39 @@ public class GameScreen implements Screen {
         });
     }
 
+    private void processedNewGameState(GameStatePacket gameState) {
+        coord = gameState.playerIdToCoordinate;
+        currentTurns = gameState.currentTurns;
+
+        if (currentTurns == GameClient.player.id)
+            isPlayerTurn = true;
+
+        unit.gridX = coord.get(GameClient.player.id)[0];
+        unit.gridY = coord.get(GameClient.player.id)[1];
+        for (Player p : lobby.getPlayers())
+            if (p.getId() != GameClient.player.getId())
+            {
+                enemies.get(p.getId()).gridX = gameState.playerIdToCoordinate.get(p.getId())[0];
+                enemies.get(p.getId()).gridY = gameState.playerIdToCoordinate.get(p.getId())[1];
+            }
+        //enemies.get(gameState.enemyPlayer.getId()).hp =
+    }
 
     private void initGame(GameStatePacket gameState) {
-        queueTurns = gameState.queueTurns;
-        currentTurns = queueTurns[0];
+        if (quantityPacket != 0) processedNewGameState(gameState);
+        quantityPacket++;
+        currentTurns = gameState.currentTurns;
+        if (currentTurns == GameClient.player.id)
+            isPlayerTurn = true;
 
-        enemies = new ArrayList<>(); // Инициализация списка игроков
-        HashMap<Integer, int[]> coord = gameState.playerIdToCoordinate;
+        enemies = new HashMap<>(); // Инициализация списка игроков
+        coord = gameState.playerIdToCoordinate;
         unit = new Unit(coord.get(GameClient.player.id)[0], coord.get(GameClient.player.id)[1], Color.BLUE, GameClient.player.getName());
 
 
-        if (enemiesPosition != null) {
-            for (Player p : lobby.getPlayers()) {
-                if (p.getId() != GameClient.player.getId())
-                    enemies.add(new Unit(coord.get(p.id)[0], coord.get(GameClient.player.id)[1], Color.RED, p.getName()));
-            }
-        } else {
-            System.out.println("No enemies found or data null");
-            enemiesPosition = new ArrayList<>();
+        for (Player p : lobby.getPlayers()) {
+            if (p.getId() != GameClient.player.getId())
+                enemies.put(p.getId(), new Unit(coord.get(p.id)[0], coord.get(p.id)[1], Color.RED, p.getName()));
         }
 
         setupSkinAndButtons();
@@ -134,7 +150,7 @@ public class GameScreen implements Screen {
         setupWorldInputListener();
 
         isMapLoaded = true;
-        //logMessage("Game started. Turn: " + unit.name);
+        logMessage("Game started. Turn: " + unit.name);
     }
     private void setupSkinAndButtons() {
         // 5. Button initialization
@@ -303,10 +319,10 @@ public class GameScreen implements Screen {
         int newX = unit.gridX + dx;
         int newY = unit.gridY + dy;
 
-        if (newX >= 0 && newX < GRID_WIDTH && newY >= 0 && newY < GRID_HEIGHT && (findEnemyInTile(newX, newY) == null)) {//(newX != enemy.gridX || newY != enemy.gridY)) {
+        if (newX >= 0 && newX < GRID_WIDTH && newY >= 0 && newY < GRID_HEIGHT && (findEnemyInTile(newX, newY) == null)) {
             packet.lobbyId = lobby.id;
-            packet.positionX = unit.gridX;
-            packet.positionY = unit.gridY;
+            packet.playerTurned.positionX = unit.gridX;
+            packet.playerTurned.positionY = unit.gridY;
             unit.gridX = newX;
             unit.gridY = newY;
             logMessage(unit.name + " moves to (" + (newX+1) + ", " + (newY+1) + ")");
@@ -318,14 +334,14 @@ public class GameScreen implements Screen {
 
     private Unit findEnemyInTile(int nextX, int nextY) {
         Unit enemy = null;
-        for (Unit u : enemies)
+        for (Unit u : enemies.values())
             if (u.gridX == nextX && u.gridY == nextY)
                 return enemy = u;
         return enemy;
     }
     private Unit findNearEnemy() {
         Unit enemy = null;
-        for (Unit e : enemies)
+        for (Unit e : enemies.values())
             if (Math.abs(unit.gridX - e.gridX) + Math.abs(unit.gridY - e.gridY) == 1)
                 return enemy = e;
         return enemy;
@@ -378,7 +394,7 @@ public class GameScreen implements Screen {
 
         gameOverDialog.button("OK", "main_menu");
         gameOverDialog.setPosition(stage.getWidth() / 2, stage.getHeight() / 2);
-        gameOverDialog.scaleBy(1.5f);
+        //gameOverDialog.scaleBy(1.5f);
         gameOverDialog.getBackground().setMinWidth(400);
         gameOverDialog.getBackground().setMinHeight(200);
         gameOverDialog.show(stage);
@@ -392,17 +408,18 @@ public class GameScreen implements Screen {
         setButtonsEnabled(isPlayerTurn);
 
         clearSelection();
-
-        if (!isPlayerTurn) {
-            for (int i = currentTurns; i < queueTurns.length; i++)
-            {
-                if (i == queueTurns.length-1)
-                    currentTurns = queueTurns[0];
-                else
-                    currentTurns = queueTurns[i];
-            }
-            client.sendGameState(packet);
-        }
+        packet.playerTurned.id = GameClient.player.id;
+        packet.playerTurned.isTurned = isPlayerTurn;
+        client.sendGameState(packet);
+//        if (!isPlayerTurn) {
+//            for (int i = currentTurns; i < currentTurns.length; i++)
+//            {
+//                if (i == currentTurns.length-1)
+//                    currentTurns = currentTurns[0];
+//                else
+//                    currentTurns = currentTurns[i];
+//            }
+//        }
     }
 
     private void setButtonsEnabled(boolean enabled) {
@@ -475,7 +492,7 @@ public class GameScreen implements Screen {
 
         // C. Unit rendering
         if (unit != null) unit.draw(shapeRenderer, TILE_SIZE, GRID_OFFSET_X);
-        if (!enemies.isEmpty()) for (Unit u : enemies) u.draw(shapeRenderer, TILE_SIZE, GRID_OFFSET_X);
+        if (!enemies.isEmpty()) for (Unit u : enemies.values()) u.draw(shapeRenderer, TILE_SIZE, GRID_OFFSET_X);
 
         shapeRenderer.end();
 
