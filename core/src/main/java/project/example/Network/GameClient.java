@@ -34,7 +34,7 @@ public class GameClient {
     public ClientState state;
     private static Client client;
     private Array<Lobby> lobbies;
-    public final static Player player = new Player("Player");
+    public final static Player player = new Player("PlayerMain");
     private final Array<Consumer<Array<Lobby>>> lobbySubscribers = new Array<>();
     private Consumer<GameStatePacket> gameStatePacketConsumer;
     public GameClient() {

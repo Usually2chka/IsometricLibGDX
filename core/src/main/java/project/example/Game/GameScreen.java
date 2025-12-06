@@ -95,6 +95,7 @@ public class GameScreen implements Screen {
     }
 
     public GameScreen(Game game, SpriteBatch batch, GameClient client, Lobby lobby) {
+        packet.playerTurned = GameClient.player;
         this.client = client;
         this.game = game;
         this.batch = batch;
@@ -150,7 +151,7 @@ public class GameScreen implements Screen {
         setupWorldInputListener();
 
         isMapLoaded = true;
-        logMessage("Game started. Turn: " + unit.name);
+        //logMessage("Game started. Turn: " + lobby.getPlayers().);
     }
     private void setupSkinAndButtons() {
         // 5. Button initialization
@@ -321,8 +322,9 @@ public class GameScreen implements Screen {
 
         if (newX >= 0 && newX < GRID_WIDTH && newY >= 0 && newY < GRID_HEIGHT && (findEnemyInTile(newX, newY) == null)) {
             packet.lobbyId = lobby.id;
-            packet.playerTurned.positionX = unit.gridX;
-            packet.playerTurned.positionY = unit.gridY;
+            packet.playerIdToCoordinate.put(GameClient.player.id, new int[] {unit.gridX, unit.gridY});
+//            packet.playerTurned.positionX = unit.gridX;
+//            packet.playerTurned.positionY = unit.gridY;
             unit.gridX = newX;
             unit.gridY = newY;
             logMessage(unit.name + " moves to (" + (newX+1) + ", " + (newY+1) + ")");
@@ -411,15 +413,6 @@ public class GameScreen implements Screen {
         packet.playerTurned.id = GameClient.player.id;
         packet.playerTurned.isTurned = isPlayerTurn;
         client.sendGameState(packet);
-//        if (!isPlayerTurn) {
-//            for (int i = currentTurns; i < currentTurns.length; i++)
-//            {
-//                if (i == currentTurns.length-1)
-//                    currentTurns = currentTurns[0];
-//                else
-//                    currentTurns = currentTurns[i];
-//            }
-//        }
     }
 
     private void setButtonsEnabled(boolean enabled) {
