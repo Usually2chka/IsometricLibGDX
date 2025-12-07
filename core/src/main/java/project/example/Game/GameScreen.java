@@ -114,9 +114,7 @@ public class GameScreen implements Screen {
     private void processedNewGameState(GameStatePacket gameState) {
         packet.playerIdToCoordinate = gameState.playerIdToCoordinate;
         currentTurns = gameState.currentTurns;
-        System.out.println("Тут processed ");
-        System.out.println("currentTurns" + gameState.currentTurns);
-        System.out.println("client id" + GameClient.player.id);
+
         if (currentTurns == GameClient.player.id)
             isPlayerTurn = true;
         setButtonsEnabled(isPlayerTurn);

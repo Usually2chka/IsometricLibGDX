@@ -34,7 +34,7 @@ public class GameClient {
     public ClientState state;
     private static Client client;
     private Array<Lobby> lobbies;
-    public final static Player player = new Player("PlayerMain");
+    public final static Player player = new Player("Player");
     private final Array<Consumer<Array<Lobby>>> lobbySubscribers = new Array<>();
     private Consumer<GameStatePacket> gameStatePacketConsumer;
     public GameClient() {
@@ -61,7 +61,7 @@ public class GameClient {
         client.start();
 
         try {
-            client.connect(500, "10.0.2.2", PORT); // localhost //to connect test server "26.135.168.236"
+            client.connect(500, "26.135.168.236", PORT); // localhost //to connect test server "26.135.168.236"
             if (client.isConnected())
                 state = ClientState.CONNECTED;
         } catch (IOException e) {
@@ -131,7 +131,7 @@ public class GameClient {
     }
 
     public void tryAgain() throws IOException {
-        client.connect(1000, "10.0.2.2", PORT); // localhost //to connect test server "26.135.168.236"
+        client.connect(1000, "26.135.168.236", PORT); // localhost //to connect test server "26.135.168.236"
     }
 
     public void startGame(Consumer<Boolean> consumer)
