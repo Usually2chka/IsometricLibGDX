@@ -168,7 +168,7 @@ public class LobbyScreen implements Screen {
 
         client.addLobbyListener(lobbyConsumer);
         client.startGame(startLobby -> {
-            Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game,new SpriteBatch(), client, lobby)));
+            Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game, new SpriteBatch(), client, lobby)));
         });
     }
 

@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
     private Consumer<GameStatePacket> gameState;
     private boolean isMapLoaded = false;
     private int quantityPacket = 0;
-    private HashMap<Integer, int[]> coord;
+    //private HashMap<Integer, int[]> coord;
     private GameStatePacket packet = new GameStatePacket();
 
     private TextButton btnMoveLeft, btnMoveRight, btnMoveUp, btnMoveDown, btnAttack;
@@ -110,16 +110,18 @@ public class GameScreen implements Screen {
             Gdx.app.postRunnable(() -> initGame(gameState));
         });
     }
-
+    @Override public void show() { }
     private void processedNewGameState(GameStatePacket gameState) {
-        coord = gameState.playerIdToCoordinate;
+        packet.playerIdToCoordinate = gameState.playerIdToCoordinate;
         currentTurns = gameState.currentTurns;
-
+        System.out.println("Тут processed ");
+        System.out.println("currentTurns" + gameState.currentTurns);
+        System.out.println("client id" + GameClient.player.id);
         if (currentTurns == GameClient.player.id)
             isPlayerTurn = true;
-
-        unit.gridX = coord.get(GameClient.player.id)[0];
-        unit.gridY = coord.get(GameClient.player.id)[1];
+        setButtonsEnabled(isPlayerTurn);
+        unit.gridX = packet.playerIdToCoordinate.get(GameClient.player.id)[0];
+        unit.gridY = packet.playerIdToCoordinate.get(GameClient.player.id)[1];
         for (Player p : lobby.getPlayers())
             if (p.getId() != GameClient.player.getId())
             {
@@ -130,20 +132,25 @@ public class GameScreen implements Screen {
     }
 
     private void initGame(GameStatePacket gameState) {
-        if (quantityPacket != 0) processedNewGameState(gameState);
+        if (quantityPacket != 0) {
+            processedNewGameState(gameState);
+            return;
+        }
         quantityPacket++;
         currentTurns = gameState.currentTurns;
+        System.out.println("currentTurns" + gameState.currentTurns);
+        System.out.println("client id" + GameClient.player.id);
         if (currentTurns == GameClient.player.id)
             isPlayerTurn = true;
 
         enemies = new HashMap<>(); // Инициализация списка игроков
-        coord = gameState.playerIdToCoordinate;
-        unit = new Unit(coord.get(GameClient.player.id)[0], coord.get(GameClient.player.id)[1], Color.BLUE, GameClient.player.getName());
+        packet.playerIdToCoordinate = gameState.playerIdToCoordinate;
+        unit = new Unit(packet.playerIdToCoordinate.get(GameClient.player.id)[0], packet.playerIdToCoordinate.get(GameClient.player.id)[1], Color.BLUE, GameClient.player.getName());
 
 
         for (Player p : lobby.getPlayers()) {
             if (p.getId() != GameClient.player.getId())
-                enemies.put(p.getId(), new Unit(coord.get(p.id)[0], coord.get(p.id)[1], Color.RED, p.getName()));
+                enemies.put(p.getId(), new Unit(packet.playerIdToCoordinate.get(p.id)[0], packet.playerIdToCoordinate.get(p.id)[1], Color.RED, p.getName()));
         }
 
         setupSkinAndButtons();
@@ -322,7 +329,7 @@ public class GameScreen implements Screen {
 
         if (newX >= 0 && newX < GRID_WIDTH && newY >= 0 && newY < GRID_HEIGHT && (findEnemyInTile(newX, newY) == null)) {
             packet.lobbyId = lobby.id;
-            packet.playerIdToCoordinate.put(GameClient.player.id, new int[] {unit.gridX, unit.gridY});
+            packet.playerIdToCoordinate.put(GameClient.player.id, new int[] {newX, newY});
 //            packet.playerTurned.positionX = unit.gridX;
 //            packet.playerTurned.positionY = unit.gridY;
             unit.gridX = newX;
@@ -500,7 +507,6 @@ public class GameScreen implements Screen {
         stage.getViewport().update(width, height, true);
     }
 
-    @Override public void show() { }
     @Override public void pause() { }
     @Override public void resume() { }
     @Override public void hide() { }
